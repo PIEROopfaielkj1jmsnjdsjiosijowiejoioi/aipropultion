@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Studio — AI Propulsion.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+<style>
+  body { background: var(--paper); }
+
+  .app { min-height: 100vh; display: grid; grid-template-columns: 248px minmax(0, 1fr); }
+
+  /* ─── Sidebar ─── */
+  .sidebar {
+    background: var(--ink); color: var(--paper);
+    padding: 22px 16px;
+    display: flex; flex-direction: column; gap: 4px;
+    position: sticky; top: 0; height: 100vh; overflow-y: auto;
+  }
+  .sidebar .brand {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-bottom: 28px; padding: 6px 10px; text-decoration: none;
+  }
+  .sidebar .brand svg { display: block; }
+  .sidebar .brand .wordmark { font-size: 17px; color: var(--paper); }
+  .sidebar .brand .wordmark .dot { color: var(--blue-sky); }
+  .demo-badge-dark {
+    display: inline-block; padding: 3px 7px;
+    background: rgba(101, 160, 220, 0.16); border: 1px solid rgba(101, 160, 220, 0.32);
+    color: var(--blue-sky); font-family: var(--font-mono);
+    font-size: 9px; font-weight: 600; letter-spacing: 0.22em;
+    text-transform: uppercase; border-radius: 3px; margin-left: 4px;
+  }
+  .nav-label {
+    font-family: var(--font-mono); font-size: 9px; font-weight: 500;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: rgba(255,255,255,0.32); padding: 16px 12px 8px;
+  }
+  .nav-item {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    padding: 9px 12px; border-radius: 5px;
+    color: rgba(255,255,255,0.72); text-decoration: none;
+    font-size: 13.5px; font-weight: 500; line-height: 1.2;
+    transition: all 0.15s ease;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.04); color: var(--paper); }
+  .nav-item.active {
+    background: rgba(101, 160, 220, 0.10); color: var(--paper);
+    border-left: 2px solid var(--blue-sky); padding-left: 10px;
+  }
+  .nav-item .badge {
+    background: var(--blue-sky); color: var(--ink);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    padding: 1px 6px; border-radius: 8px; line-height: 1.4;
+  }
+  .sidebar-foot {
+    margin-top: auto; padding-top: 16px; border-top: 1px solid var(--rule-light);
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .user-block {
+    padding: 12px; border-radius: 6px;
+    background: rgba(255,255,255,0.04); margin-bottom: 8px;
+    display: flex; gap: 10px; align-items: center;
+  }
+  .user-avatar {
+    width: 36px; height: 36px; border-radius: 50%;
+    background: var(--blue-royal); color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display); font-style: italic;
+    font-size: 15px; flex-shrink: 0;
+  }
+  .user-info { flex: 1; line-height: 1.15; min-width: 0; }
+  .user-info .name {
+    font-family: var(--font-sans); font-size: 13.5px; font-weight: 600;
+    color: var(--paper); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .user-info .email {
+    font-family: var(--font-mono); font-size: 9.5px;
+    color: rgba(255,255,255,0.5); letter-spacing: 0.04em;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    margin-top: 2px;
+  }
+
+  /* ─── Main ─── */
+  .main { padding: 32px 40px 80px; min-width: 0; }
+  .topline {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 4px; gap: 16px;
+  }
+  .topline .crumbs {
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+    color: rgba(20,24,31,0.45);
+  }
+  .topline .ts {
+    font-family: var(--font-mono); font-size: 11px; color: rgba(20,24,31,0.5);
+  }
+  .topline .ts .live {
+    display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+    background: #4ade80; margin-right: 6px;
+    box-shadow: 0 0 0 3px rgba(74,222,128,0.18);
+  }
+  .page-h {
+    display: flex; align-items: baseline; justify-content: space-between;
+    margin: 4px 0 28px; gap: 24px;
+  }
+  .page-h h1 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(36px, 4vw, 48px);
+    line-height: 1.0; letter-spacing: -0.02em;
+    color: var(--ink); margin: 0;
+  }
+  .page-h h1 em { color: var(--blue-royal); font-style: italic; }
+  .page-h .greeting {
+    color: var(--ink-2); font-size: 14px; line-height: 1.5;
+    text-align: right;
+  }
+
+  /* ─── KPI cards ─── */
+  .kpi-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px;
+    margin-bottom: 32px;
+  }
+  .kpi {
+    border: 1px solid var(--rule); background: #ffffff;
+    padding: 18px; border-radius: 6px; transition: all 0.15s ease;
+  }
+  .kpi:hover { border-color: var(--ink); transform: translateY(-1px); }
+  .kpi .label {
+    font-family: var(--font-mono); font-size: 10px; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(20,24,31,0.55); margin-bottom: 10px;
+  }
+  .kpi .value {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 38px; line-height: 1; letter-spacing: -0.02em; color: var(--ink);
+  }
+  .kpi .value .unit {
+    font-family: var(--font-mono); font-style: normal; font-size: 12px;
+    color: var(--blue-royal); margin-left: 5px; vertical-align: 5px;
+  }
+  .kpi .trend {
+    margin-top: 8px; font-family: var(--font-mono); font-size: 10.5px;
+    color: rgba(20,24,31,0.5); letter-spacing: 0.06em;
+  }
+  .kpi .trend.up { color: #4a8c64; }
+
+  /* ─── Two-col ─── */
+  .columns {
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 20px;
+    margin-bottom: 32px;
+  }
+  @media (max-width: 1100px) { .columns { grid-template-columns: 1fr; } }
+
+  /* ─── Cards ─── */
+  .card {
+    background: #ffffff; border: 1px solid var(--rule);
+    border-radius: 6px; overflow: hidden;
+  }
+  .card .card-h {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 18px; border-bottom: 1px solid var(--rule);
+  }
+  .card .card-h h3 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 19px; line-height: 1.0; letter-spacing: -0.015em;
+    color: var(--ink); margin: 0;
+  }
+  .card .card-h .ct {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.18em; color: rgba(20,24,31,0.5); text-transform: uppercase;
+  }
+  .card .card-h .ct .num { color: var(--blue-royal); font-weight: 600; }
+
+  /* ─── Inbox / pending list ─── */
+  .inbox-list { display: flex; flex-direction: column; }
+  .inbox-item {
+    padding: 16px 18px; border-bottom: 1px solid var(--rule);
+    cursor: pointer; transition: background 0.15s ease;
+  }
+  .inbox-item:last-child { border-bottom: 0; }
+  .inbox-item:hover { background: var(--paper-warm); }
+  .inbox-item .row1 {
+    display: flex; align-items: baseline; justify-content: space-between;
+    gap: 12px; margin-bottom: 4px;
+  }
+  .inbox-item .client-name {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 18px; color: var(--ink); letter-spacing: -0.015em;
+  }
+  .inbox-item .since {
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.06em; color: rgba(20,24,31,0.5);
+  }
+  .inbox-item .row2 {
+    color: var(--ink-2); font-size: 13px; line-height: 1.5;
+    margin: 4px 0 12px;
+  }
+  .inbox-item .row3 {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  .inbox-item .meta-row { display: flex; gap: 12px; flex-wrap: wrap; }
+  .inbox-item .chip {
+    font-family: var(--font-mono); font-size: 9.5px;
+    letter-spacing: 0.12em; color: var(--ink-2); text-transform: uppercase;
+  }
+  .inbox-item .chip strong {
+    color: var(--ink); font-family: var(--font-sans); font-weight: 600;
+    text-transform: none; font-size: 12px; letter-spacing: normal; margin-left: 4px;
+  }
+  .inbox-item .actions { display: flex; gap: 6px; }
+  .btn-sm {
+    padding: 6px 11px; font-size: 12px; border-radius: 4px;
+    border: 1px solid var(--rule); background: #ffffff; color: var(--ink);
+    cursor: pointer; font-family: var(--font-sans); font-weight: 500;
+    text-decoration: none; line-height: 1; transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  .btn-sm:hover { border-color: var(--ink); }
+  .btn-sm.primary {
+    background: var(--blue-royal); color: var(--paper); border-color: var(--blue-royal);
+  }
+  .btn-sm.primary:hover { background: var(--blue-deep); }
+  .btn-sm.danger { color: #b85c5c; border-color: rgba(184, 92, 92, 0.4); }
+  .btn-sm.danger:hover { border-color: #b85c5c; }
+
+  /* ─── API connections ─── */
+  .api-list { padding: 4px 0; }
+  .api-row {
+    display: grid; grid-template-columns: 24px 1fr auto auto;
+    gap: 12px; padding: 12px 18px;
+    align-items: center; border-bottom: 1px solid var(--rule);
+  }
+  .api-row:last-child { border-bottom: 0; }
+  .api-status {
+    width: 8px; height: 8px; border-radius: 50%; justify-self: center;
+  }
+  .api-status.on  { background: #4ade80; box-shadow: 0 0 0 3px rgba(74,222,128,0.18); }
+  .api-status.off { background: rgba(20,24,31,0.15); }
+  .api-name {
+    font-family: var(--font-sans); font-size: 13.5px; color: var(--ink);
+    font-weight: 500;
+  }
+  .api-name .sub {
+    display: block; font-family: var(--font-mono); font-size: 10px;
+    color: rgba(20,24,31,0.5); margin-top: 2px; font-weight: 400;
+    letter-spacing: 0.04em;
+  }
+  .api-state {
+    font-family: var(--font-mono); font-size: 10px;
+    letter-spacing: 0.14em; text-transform: uppercase;
+  }
+  .api-state.on  { color: #4a8c64; }
+  .api-state.off { color: rgba(20,24,31,0.45); }
+
+  /* ─── Activity feed ─── */
+  .feed { list-style: none; padding: 0; margin: 0; }
+  .feed li {
+    display: grid; grid-template-columns: 86px 1fr;
+    gap: 14px; padding: 12px 18px;
+    border-bottom: 1px solid var(--rule); align-items: baseline;
+  }
+  .feed li:last-child { border-bottom: 0; }
+  .feed .when {
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.06em; color: rgba(20,24,31,0.5); text-transform: uppercase;
+  }
+  .feed .what { font-size: 13px; color: var(--ink); line-height: 1.5; }
+  .feed .what strong { color: var(--ink); }
+  .feed .what code {
+    font-family: var(--font-mono); font-size: 11.5px;
+    background: var(--paper-warm); padding: 2px 6px;
+    border-radius: 3px; color: var(--ink-2);
+  }
+
+  /* ─── Scratchpad ─── */
+  .scratchpad { padding: 14px 18px; }
+  .scratchpad textarea {
+    width: 100%; min-height: 130px;
+    background: var(--paper-warm); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 12px;
+    font-family: var(--font-mono); font-size: 12.5px;
+    color: var(--ink); line-height: 1.55;
+    resize: vertical; outline: none;
+    transition: all 0.15s ease;
+  }
+  .scratchpad textarea:focus {
+    border-color: var(--blue-royal);
+    box-shadow: 0 0 0 3px rgba(14, 114, 217, 0.12);
+    background: #ffffff;
+  }
+  .scratchpad .save-line {
+    margin-top: 8px;
+    font-family: var(--font-mono); font-size: 10px;
+    color: rgba(20,24,31,0.5); letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .scratchpad .save-line.saved { color: #4a8c64; }
+
+  @media (max-width: 880px) {
+    .app { grid-template-columns: 1fr; }
+    .sidebar { position: static; height: auto; }
+    .main { padding: 24px; }
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ─── SIDEBAR ─── -->
+  <aside class="sidebar">
+    <a href="/" class="brand">
+      <svg viewBox="-50 -50 100 100" width="22" height="22" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+        <g transform="rotate(-10)">
+          <g stroke="#65A0DC" stroke-width="3.2" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#65A0DC">
+            <circle cx="0" cy="-38" r="6"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(240)"/>
+            <circle r="4.5"/>
+          </g>
+        </g>
+      </svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span>
+      <span class="demo-badge-dark">Demo</span>
+    </a>
+
+    <div class="nav-label">Workspace</div>
+    <a class="nav-item active" href="/studio.html"><span>Dashboard</span></a>
+    <a class="nav-item" href="/studio/projects.html"><span>Projects</span><span class="badge">28</span></a>
+    <a class="nav-item" href="#"><span>Clients</span><span class="badge" id="nav-clients-ct">0</span></a>
+    <a class="nav-item" href="/studio/pipeline.html"><span>Inbox</span><span class="badge" id="nav-inbox-ct">0</span></a>
+    <a class="nav-item" href="/studio/checklist.html"><span>Checklist</span></a>
+    <a class="nav-item" href="/chat"><span>Onboarding chat</span></a>
+    <a class="nav-item" href="#"><span>Sessions</span></a>
+
+    <div class="nav-label">Knowledge</div>
+    <a class="nav-item" href="/studio/education.html"><span>Education</span><span class="badge">8</span></a>
+    <a class="nav-item" href="/studio/notes.html"><span>Notes</span></a>
+
+    <div class="sidebar-foot">
+      <div class="user-block">
+        <div class="user-avatar" id="user-initials">··</div>
+        <div class="user-info">
+          <p class="name" id="user-name">Loading…</p>
+          <span class="email" id="user-email">…</span>
+        </div>
+      </div>
+      <a class="nav-item" href="#"><span>Settings</span></a>
+      <a class="nav-item" href="#" id="sign-out-btn"><span>Sign out</span></a>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ─── -->
+  <main class="main">
+
+    <div class="topline">
+      <span class="crumbs">Studio · <span id="crumb-workspace">workspace</span> · Dashboard</span>
+      <span class="ts"><span class="live"></span>Live · last sync 12s ago</span>
+    </div>
+
+    <div class="page-h">
+      <h1>Welcome back, <em id="greeting-name">there</em>.</h1>
+      <span class="greeting" id="greeting-sub">Loading your workspace…</span>
+    </div>
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpi-grid"></div>
+
+    <!-- TWO COLUMNS -->
+    <div class="columns">
+
+      <!-- LEFT: Pending review / personal action -->
+      <section class="card">
+        <header class="card-h">
+          <h3 id="left-card-title">Pending review</h3>
+          <span class="ct" id="left-card-ct"><span class="num">0</span> items</span>
+        </header>
+        <div class="inbox-list" id="left-list"></div>
+      </section>
+
+      <!-- RIGHT: Personal API connections -->
+      <section class="card">
+        <header class="card-h">
+          <h3>Your API connections</h3>
+          <span class="ct"><span class="num" id="api-ct">0</span> active</span>
+        </header>
+        <div class="api-list" id="api-list"></div>
+      </section>
+
+    </div>
+
+    <!-- ACTIVITY FEED -->
+    <section class="card" style="margin-bottom: 24px;">
+      <header class="card-h">
+        <h3>Your recent activity</h3>
+        <span class="ct">Last 24h</span>
+      </header>
+      <ul class="feed" id="feed"></ul>
+    </section>
+
+    <!-- SCRATCHPAD -->
+    <section class="card">
+      <header class="card-h">
+        <h3>Scratchpad</h3>
+        <span class="ct">Saved per-user · localStorage</span>
+      </header>
+      <div class="scratchpad">
+        <textarea id="scratchpad-text" placeholder="Quick notes, todos, scratch ideas — saves as you type."></textarea>
+        <div class="save-line" id="save-line">Not saved yet</div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  // ─── User directory ───
+  const DIRECTORY = {
+    'piero@me.com': {
+      name: 'Piero Pereira', firstName: 'Piero', initials: 'PP',
+      role: 'Founder', workspace: 'piero',
+      greeting: 'Two prospects are waiting on your review.',
+      kpis: [
+        { label: 'Active clients', value: '4', unit: '', trend: '+1 this month', up: true },
+        { label: 'Pending review', value: '2', unit: 'inbox', trend: 'Oldest 1 day' },
+        { label: 'In discovery', value: '1', unit: '', trend: 'Call booked Fri' },
+        { label: 'Monthly retainer', value: '$2.8', unit: 'k', trend: '+$800 from last mo', up: true },
+      ],
+      leftCardTitle: 'Pending review',
+      leftItems: [],
+      apis: [
+        { name: 'Anthropic / Claude API', sub: 'org · ai-propulsion · sonnet-4-6, opus-4-7', state: 'on' },
+        { name: 'OpenAI', sub: 'fallback for embeddings only', state: 'on' },
+        { name: 'Stripe', sub: 'invoicing + retainer billing', state: 'on' },
+        { name: 'Notion', sub: 'client knowledge bases', state: 'on' },
+        { name: 'Slack', sub: 'team coordination', state: 'off' },
+        { name: 'HubSpot', sub: 'lead CRM', state: 'off' },
+        { name: 'Local MCP · scout', sub: 'daily research agent', state: 'on' },
+      ],
+      activity: [
+        { when: '1d ago', html: '<strong>Meraki</strong> · approved manager-flow handoff. <code>handoff-week-3</code>' },
+        { when: '2d ago', html: 'Drafted v2 proposal for <strong>Northwind Bakery</strong>.' },
+      ],
+      navCounts: { clients: 3, inbox: 1 },
+    },
+    'piero1@me.com': null,
+    'enzo@meraki.com': {
+      name: 'Enzo Pereira', firstName: 'Enzo', initials: 'EP',
+      role: 'Engineer', workspace: 'enzo',
+      greeting: 'You have 2 active builds and 1 PR awaiting review.',
+      kpis: [
+        { label: 'Active builds', value: '2', unit: '', trend: 'Meraki + Northwind' },
+        { label: 'Commits today', value: '14', unit: '', trend: '+6 from yesterday', up: true },
+        { label: 'Open PRs', value: '1', unit: '', trend: 'Awaiting Piero review' },
+        { label: 'Sessions running', value: '3', unit: 'live', trend: 'localhost:3002 +2' },
+      ],
+      leftCardTitle: 'Your active builds',
+      leftItems: [
+        { name: 'Meraki Realty', since: 'Working since Tue',
+          desc: 'Worker portal supplies module · Spanish polish in progress. Manager dashboard handoff approved this week.',
+          chips: [['Branch','feat/supplies-v2'],['Files','12'],['Tests','passing']],
+          actions: [['Open repo',''],['Live logs',''],['Push →','primary']] },
+        { name: 'Northwind Bakery', since: 'Started yesterday',
+          desc: 'Architecture v2 — order routing system. Discovery brief is in clients/northwind/context/. Eval set scaffolded.',
+          chips: [['Branch','main'],['Files','3'],['Status','planning']],
+          actions: [['Open repo',''],['Open notes',''],['Continue →','primary']] },
+      ],
+      apis: [
+        { name: 'Anthropic / Claude API', sub: 'personal key · claude-sonnet-4-6', state: 'on' },
+        { name: 'GitHub', sub: 'pereiraenzo204-crypto · 2 active repos', state: 'on' },
+        { name: 'Local MCP servers', sub: 'fs, git, web-search', state: 'on' },
+        { name: 'Vercel', sub: 'meraki-platform · auto-deploy', state: 'on' },
+        { name: 'Postgres (Neon)', sub: 'meraki staging db', state: 'on' },
+        { name: 'Stripe', sub: 'sandbox keys only', state: 'off' },
+        { name: 'Notion', sub: 'personal docs', state: 'off' },
+      ],
+      activity: [
+        { when: '1h ago', html: 'Pushed <code>feat/supplies-v2</code> to <strong>Meraki</strong> · 6 files changed.' },
+        { when: '3h ago', html: 'Ran eval suite for <strong>Meraki worker portal</strong>. <code>27/27 passing</code>' },
+        { when: '6h ago', html: 'Started <strong>Northwind</strong> architecture draft. Scaffolded eval harness.' },
+        { when: '1d ago', html: 'Updated MCP filesystem server to v0.4 · faster brief reads.' },
+      ],
+      navCounts: { clients: 2, inbox: 0 },
+    },
+  };
+  DIRECTORY['piero1@me.com'] = DIRECTORY['piero@me.com'];
+
+  function fallbackUser(email) {
+    const handle = (email.split('@')[0] || 'dev');
+    const name = handle.charAt(0).toUpperCase() + handle.slice(1);
+    return {
+      name: name, firstName: name, initials: (handle[0] || '?').toUpperCase() + (handle[1] || '·').toUpperCase(),
+      role: 'Developer', workspace: handle,
+      greeting: 'No personalized data yet — ask Piero to provision your workspace.',
+      kpis: [
+        { label: 'Active clients', value: '0', unit: '', trend: 'None assigned' },
+        { label: 'Pending review', value: '0', unit: 'inbox', trend: '—' },
+        { label: 'Sessions', value: '0', unit: '', trend: '—' },
+        { label: 'API connections', value: '1', unit: '', trend: 'Default Claude only' },
+      ],
+      leftCardTitle: 'Get started',
+      leftItems: [
+        { name: 'Your workspace is empty', since: 'just now',
+          desc: 'Ask Piero or Enzo to assign you to clients and provision your API keys. Once that\'s done your dashboard will populate automatically.',
+          chips: [['Status','pending']],
+          actions: [['Email Piero','primary']] },
+      ],
+      apis: [
+        { name: 'Anthropic / Claude API', sub: 'shared studio key (rate-limited)', state: 'on' },
+        { name: 'GitHub', sub: 'not connected', state: 'off' },
+        { name: 'Stripe', sub: 'not connected', state: 'off' },
+        { name: 'Notion', sub: 'not connected', state: 'off' },
+      ],
+      activity: [
+        { when: 'just now', html: 'Signed into the studio for the first time. Welcome.' },
+      ],
+      navCounts: { clients: 0, inbox: 0 },
+    };
+  }
+
+  let userRecord;
+  try { userRecord = JSON.parse(localStorage.getItem('aip_studio_user') || 'null'); }
+  catch (_) { userRecord = null; }
+
+  if (!userRecord || !userRecord.email) {
+    window.location.href = '/sign-in/developer.html';
+    return;
+  }
+
+  const email = userRecord.email.toLowerCase();
+  const profile = DIRECTORY[email] || fallbackUser(email);
+
+  document.getElementById('user-initials').textContent = profile.initials;
+  document.getElementById('user-name').textContent = profile.name;
+  document.getElementById('user-email').textContent = email;
+  document.getElementById('greeting-name').textContent = profile.firstName;
+  document.getElementById('greeting-sub').textContent = profile.greeting;
+  document.getElementById('crumb-workspace').textContent = profile.workspace;
+  document.getElementById('nav-clients-ct').textContent = profile.navCounts.clients;
+  document.getElementById('nav-inbox-ct').textContent = profile.navCounts.inbox;
+
+  const kpiHtml = profile.kpis.map(k => `
+    <div class="kpi">
+      <div class="label">${k.label}</div>
+      <div class="value">${k.value}${k.unit ? '<span class="unit">' + k.unit + '</span>' : ''}</div>
+      <div class="trend ${k.up ? 'up' : ''}">${k.trend}</div>
+    </div>
+  `).join('');
+  document.getElementById('kpi-grid').innerHTML = kpiHtml;
+
+  document.getElementById('left-card-title').textContent = profile.leftCardTitle;
+  document.getElementById('left-card-ct').innerHTML = `<span class="num">${profile.leftItems.length}</span> items`;
+  const leftHtml = profile.leftItems.map(item => {
+    const chipsHtml = item.chips.map(([k,v]) => `<span class="chip">${k} <strong>${v}</strong></span>`).join('');
+    const actionsHtml = item.actions.map(([label,cls]) => `<a href="#" class="btn-sm ${cls}">${label}</a>`).join('');
+    return `
+      <div class="inbox-item">
+        <div class="row1">
+          <span class="client-name">${item.name}</span>
+          <span class="since">${item.since}</span>
+        </div>
+        <p class="row2">${item.desc}</p>
+        <div class="row3">
+          <div class="meta-row">${chipsHtml}</div>
+          <div class="actions">${actionsHtml}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+  document.getElementById('left-list').innerHTML = leftHtml;
+
+  const apiHtml = profile.apis.map(a => `
+    <div class="api-row">
+      <span class="api-status ${a.state}"></span>
+      <span class="api-name">${a.name}<span class="sub">${a.sub}</span></span>
+      <span class="api-state ${a.state}">${a.state === 'on' ? 'Connected' : 'Off'}</span>
+      <a href="#" class="btn-sm">${a.state === 'on' ? 'Manage' : 'Connect'}</a>
+    </div>
+  `).join('');
+  document.getElementById('api-list').innerHTML = apiHtml;
+  document.getElementById('api-ct').textContent = profile.apis.filter(a => a.state === 'on').length;
+
+  const feedHtml = profile.activity.map(e => `
+    <li>
+      <span class="when">${e.when}</span>
+      <span class="what">${e.html}</span>
+    </li>
+  `).join('');
+  document.getElementById('feed').innerHTML = feedHtml;
+
+  // Per-user scratchpad
+  const padKey = 'aip_studio_scratchpad__' + email;
+  const padEl = document.getElementById('scratchpad-text');
+  const saveLine = document.getElementById('save-line');
+  padEl.value = localStorage.getItem(padKey) || '';
+  if (padEl.value) {
+    saveLine.textContent = 'Saved locally · ' + new Date().toLocaleTimeString();
+    saveLine.classList.add('saved');
+  }
+  let saveTimer = null;
+  padEl.addEventListener('input', () => {
+    saveLine.textContent = 'Saving…';
+    saveLine.classList.remove('saved');
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(() => {
+      localStorage.setItem(padKey, padEl.value);
+      saveLine.textContent = 'Saved locally · ' + new Date().toLocaleTimeString();
+      saveLine.classList.add('saved');
+    }, 400);
+  });
+
+  document.getElementById('sign-out-btn').addEventListener('click', (e) => {
+    e.preventDefault();
+    localStorage.removeItem('aip_studio_user');
+    window.location.href = '/sign-in/developer.html';
+  });
+})();
+</script>
+
+</body>
+</html>

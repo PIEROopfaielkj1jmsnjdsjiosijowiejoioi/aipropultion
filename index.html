@@ -1,0 +1,997 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Propulsion. — AI, implemented inside your business.</title>
+<meta name="description" content="AI Propulsion designs AI agents, builds the software and workflows that run them, and trains your team to use them properly." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body { background: var(--paper); overflow-x: hidden; }
+
+  /* ─── Scroll-reveal primitive ─── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(28px);
+    transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: opacity, transform;
+  }
+  .reveal.in-view { opacity: 1; transform: translateY(0); }
+  .reveal.scale {
+    transform: translateY(32px) scale(0.94);
+    transform-origin: center top;
+  }
+  .reveal.scale.in-view { transform: translateY(0) scale(1); }
+  .reveal[data-delay="1"] { transition-delay: 0.08s; }
+  .reveal[data-delay="2"] { transition-delay: 0.18s; }
+  .reveal[data-delay="3"] { transition-delay: 0.28s; }
+  .reveal[data-delay="4"] { transition-delay: 0.38s; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal, .reveal.scale { opacity: 1; transform: none; transition: none; }
+  }
+
+  /* ─── Top nav ─── */
+  .top-nav {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250, 250, 247, 0.82);
+    backdrop-filter: saturate(140%) blur(12px);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .container-wide {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 40px;
+  }
+  .top-nav-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 20px 0;
+  }
+  .nav-brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+  .nav-brand svg { display: block; }
+  .nav-brand .wordmark { font-size: 22px; }
+  .nav-actions { display: flex; align-items: center; gap: 8px; }
+  .nav-signin {
+    color: var(--ink-2); padding: 10px 14px;
+    font-size: 13.5px; font-weight: 500;
+    text-decoration: none; transition: color 0.15s ease;
+  }
+  .nav-signin:hover { color: var(--ink); }
+  .nav-try {
+    background: var(--ink); color: var(--paper);
+    padding: 10px 20px; border-radius: 4px;
+    font-family: var(--font-sans); font-size: 13.5px; font-weight: 500;
+    text-decoration: none; line-height: 1;
+    transition: background 0.15s ease;
+  }
+  .nav-try:hover { background: var(--ink-2); color: var(--paper); }
+
+  /* ─── HERO (centered) ─── */
+  .hero {
+    padding: 120px 0 80px;
+    text-align: center;
+  }
+  .hero-inner {
+    max-width: 920px;
+    margin: 0 auto;
+  }
+  .hero-eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-royal);
+    margin-bottom: 32px;
+  }
+  .hero-eyebrow::before,
+  .hero-eyebrow::after {
+    content: ""; width: 28px; height: 1px; background: var(--blue-royal);
+  }
+  .hero h1 {
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 400;
+    font-size: clamp(56px, 8vw, 120px);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0 0 32px;
+  }
+  .hero h1 em { color: var(--blue-royal); font-style: italic; }
+  .hero p.lead {
+    font-size: 19px;
+    line-height: 1.55;
+    color: var(--ink-2);
+    margin: 0 auto 40px;
+    max-width: 660px;
+  }
+  .hero-cta-row {
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .btn-primary {
+    background: var(--blue-royal); color: var(--paper);
+    padding: 16px 26px; border-radius: 5px;
+    font-family: var(--font-sans); font-size: 15px; font-weight: 500;
+    text-decoration: none; line-height: 1;
+    transition: all 0.18s ease;
+    display: inline-flex; align-items: center; gap: 8px;
+  }
+  .btn-primary:hover {
+    background: var(--blue-deep); color: var(--paper);
+    transform: translateY(-1px);
+    box-shadow: 0 14px 30px rgba(14, 114, 217, 0.28);
+  }
+  .btn-primary::after { content: "→"; transition: transform 0.15s ease; }
+  .btn-primary:hover::after { transform: translateX(3px); }
+  .quiet-link {
+    color: var(--ink-2);
+    font-size: 13.5px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.06em;
+    text-decoration: none;
+    padding: 14px 8px;
+    transition: color 0.15s ease;
+  }
+  .quiet-link:hover { color: var(--blue-royal); }
+  .quiet-link::after { content: " →"; opacity: 0.7; }
+
+  /* ─── Scroll cue ─── */
+  .scroll-cue {
+    text-align: center;
+    margin-top: 72px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.4);
+    animation: cue-bounce 2.4s ease-in-out infinite;
+  }
+  .scroll-cue::after { content: " ↓"; display: inline-block; margin-left: 6px; }
+  @keyframes cue-bounce {
+    0%, 100% { transform: translateY(0); opacity: 0.45; }
+    50%      { transform: translateY(6px); opacity: 0.8; }
+  }
+
+  /* ─── Realistic chat panel (clickable) ─── */
+  .chat-section {
+    padding: 0 0 120px;
+  }
+  .chat-container {
+    max-width: 580px;
+    margin: 0 auto;
+  }
+  .chat-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+  }
+  .chat-window {
+    background: #ffffff;
+    border-radius: 18px;
+    box-shadow:
+      0 1px 2px rgba(20, 24, 31, 0.06),
+      0 28px 60px rgba(20, 24, 31, 0.14),
+      0 4px 12px rgba(20, 24, 31, 0.06);
+    overflow: hidden;
+    border: 1px solid var(--rule);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+                box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+  }
+  .chat-link:hover .chat-window {
+    transform: translateY(-4px);
+    box-shadow:
+      0 1px 2px rgba(20, 24, 31, 0.06),
+      0 36px 70px rgba(20, 24, 31, 0.18),
+      0 8px 18px rgba(14, 114, 217, 0.10);
+  }
+  .chat-link:hover .chat-tap-overlay { opacity: 1; }
+
+  /* Window chrome — like a real chat app header */
+  .chat-titlebar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 14px 18px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--rule);
+  }
+  .chat-traffic {
+    display: flex; gap: 6px; align-items: center;
+  }
+  .chat-traffic span {
+    width: 11px; height: 11px; border-radius: 50%;
+    display: inline-block;
+  }
+  .chat-traffic .red   { background: #ff5f57; }
+  .chat-traffic .yellow{ background: #ffbd2e; }
+  .chat-traffic .green { background: #28c840; }
+  .chat-url {
+    flex: 1;
+    text-align: center;
+    background: #fff;
+    border: 1px solid var(--rule);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: rgba(20, 24, 31, 0.6);
+    letter-spacing: 0.02em;
+    max-width: 280px;
+    margin: 0 auto;
+  }
+  .chat-url .lock { color: #4a8c64; margin-right: 4px; }
+
+  /* Agent header strip inside the chat */
+  .chat-agent-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #ffffff;
+    border-bottom: 1px solid var(--rule);
+  }
+  .chat-avatar {
+    width: 38px; height: 38px;
+    border-radius: 50%;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    position: relative;
+  }
+  .chat-avatar svg { width: 24px; height: 24px; }
+  .chat-avatar .online {
+    position: absolute;
+    bottom: -1px; right: -1px;
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    background: #4ade80;
+    border: 2px solid #ffffff;
+  }
+  .chat-agent-info { flex: 1; line-height: 1.2; }
+  .chat-agent-info .name {
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  .chat-agent-info .status {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    color: rgba(20, 24, 31, 0.55);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+  .chat-agent-info .status .dot {
+    color: #4ade80; font-size: 12px; margin-right: 2px;
+  }
+  .chat-agent-actions {
+    display: flex; gap: 4px;
+    color: rgba(20, 24, 31, 0.4);
+    font-size: 18px;
+  }
+  .chat-agent-actions span {
+    padding: 6px;
+    line-height: 1;
+    border-radius: 4px;
+  }
+
+  /* Conversation body */
+  .chat-body {
+    padding: 16px 18px;
+    background: #fafaf7;
+    height: 320px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position: relative;
+  }
+  .day-divider {
+    text-align: center;
+    margin: 0 0 8px;
+  }
+  .day-divider span {
+    display: inline-block;
+    background: rgba(20, 24, 31, 0.08);
+    color: rgba(20, 24, 31, 0.55);
+    padding: 3px 10px;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+  .chat-msg {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 4px;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .chat-msg.show { opacity: 1; transform: translateY(0); }
+  .chat-msg.assistant { justify-content: flex-start; }
+  .chat-msg.user { justify-content: flex-end; }
+  .chat-msg .mini-avatar {
+    width: 24px; height: 24px;
+    border-radius: 50%;
+    background: var(--ink);
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    align-self: flex-end;
+  }
+  .chat-msg .mini-avatar svg { width: 14px; height: 14px; }
+  .chat-msg.user .mini-avatar { display: none; }
+  .chat-msg .bubble-wrap {
+    display: flex;
+    flex-direction: column;
+    max-width: 72%;
+  }
+  .chat-msg.user .bubble-wrap { align-items: flex-end; }
+  .chat-msg.assistant .bubble-wrap { align-items: flex-start; }
+  .chat-bubble {
+    padding: 9px 13px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.42;
+    word-wrap: break-word;
+    font-family: var(--font-sans);
+  }
+  .chat-msg.assistant .chat-bubble {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    color: var(--ink);
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg.user .chat-bubble {
+    background: var(--blue-royal);
+    color: var(--paper);
+    border-bottom-right-radius: 4px;
+  }
+  .chat-time {
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    color: rgba(20, 24, 31, 0.4);
+    margin-top: 3px;
+    padding: 0 6px;
+    letter-spacing: 0.04em;
+  }
+  .chat-msg.user .chat-time::after {
+    content: " · seen";
+    color: var(--blue-royal);
+    margin-left: 1px;
+    opacity: 0.7;
+  }
+
+  /* Typing indicator */
+  .chat-typing-row {
+    display: none;
+    gap: 8px;
+    margin-bottom: 4px;
+  }
+  .chat-typing-row.show { display: flex; }
+  .chat-typing-row .mini-avatar {
+    width: 24px; height: 24px; border-radius: 50%;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+  .chat-typing-row .mini-avatar svg { width: 14px; height: 14px; }
+  .chat-typing {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 16px;
+    border-bottom-left-radius: 4px;
+    padding: 11px 14px;
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+  }
+  .chat-typing span {
+    width: 5px; height: 5px;
+    border-radius: 50%;
+    background: rgba(20, 24, 31, 0.4);
+    animation: bounce 1.3s ease-in-out infinite;
+  }
+  .chat-typing span:nth-child(2) { animation-delay: 0.15s; }
+  .chat-typing span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-4px); }
+  }
+
+  /* Composer */
+  .chat-composer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #ffffff;
+    border-top: 1px solid var(--rule);
+  }
+  .chat-input-pill {
+    flex: 1;
+    background: #fafaf7;
+    border: 1px solid var(--rule);
+    border-radius: 999px;
+    padding: 10px 16px;
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    color: rgba(20, 24, 31, 0.45);
+    transition: all 0.15s ease;
+  }
+  .chat-link:hover .chat-input-pill {
+    border-color: var(--blue-royal);
+    background: #ffffff;
+    color: var(--ink);
+  }
+  .chat-send {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: var(--blue-royal);
+    color: var(--paper);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .chat-link:hover .chat-send { transform: scale(1.06); }
+
+  /* Tap hint at bottom */
+  .chat-tap-hint {
+    text-align: center;
+    margin-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.45);
+    transition: color 0.15s ease;
+  }
+  .chat-tap-hint .arrow {
+    display: inline-block;
+    margin-left: 8px;
+    transition: transform 0.2s ease;
+  }
+  .chat-link:hover .chat-tap-hint {
+    color: var(--blue-royal);
+  }
+  .chat-link:hover .chat-tap-hint .arrow {
+    transform: translateX(4px);
+  }
+
+  /* Subtle overlay that shows "click to open" on hover */
+  .chat-tap-overlay {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 5px 10px;
+    background: rgba(14, 114, 217, 0.95);
+    color: var(--paper);
+    border-radius: 4px;
+    font-family: var(--font-mono);
+    font-size: 9.5px;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ─── What we do (pillars) ─── */
+  .pillars-section {
+    padding: 120px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .pillars-head {
+    margin-bottom: 56px;
+    display: grid;
+    grid-template-columns: 1fr 1.8fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .pillars-head .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue-royal);
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+  }
+  .pillars-head h2 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(40px, 4.8vw, 64px);
+    line-height: 0.98;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0;
+    max-width: 800px;
+  }
+  .pillars-head h2 em { color: var(--blue-royal); font-style: italic; }
+  .pillars-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0;
+    border-top: 1px solid var(--rule);
+  }
+  .pillar {
+    padding: 40px 36px 40px 0;
+    border-right: 1px solid var(--rule);
+  }
+  .pillar:last-child { border-right: 0; padding-right: 0; }
+  .pillar:not(:first-child) { padding-left: 36px; }
+  .pillar .pillar-num {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    color: var(--blue-royal);
+    margin-bottom: 20px;
+  }
+  .pillar h3 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 28px;
+    line-height: 1.15;
+    letter-spacing: -0.015em;
+    color: var(--ink);
+    margin: 0 0 14px;
+  }
+  .pillar p {
+    color: var(--ink-2);
+    font-size: 15px;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .pillar p strong { color: var(--ink); font-weight: 600; }
+
+  /* ─── Proof line ─── */
+  .proof-line {
+    padding: 96px 0;
+    border-top: 1px solid var(--rule);
+    background: var(--paper-warm);
+  }
+  .proof-grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .proof-grid .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue-royal);
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+  }
+  .proof-grid .num {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(42px, 5vw, 64px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0 0 14px;
+  }
+  .proof-grid .num em { color: var(--blue-royal); font-style: italic; }
+  .proof-grid .desc {
+    font-size: 16.5px;
+    color: var(--ink-2);
+    line-height: 1.6;
+    margin: 0;
+    max-width: 720px;
+  }
+
+  /* ─── Contact CTA ─── */
+  .contact-cta {
+    padding: 120px 0;
+    border-top: 1px solid var(--rule);
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: end;
+  }
+  .contact-cta .label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--blue-royal);
+    margin-bottom: 20px;
+    display: block;
+  }
+  .contact-cta h2 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(44px, 5.6vw, 72px);
+    line-height: 0.96;
+    letter-spacing: -0.025em;
+    color: var(--ink);
+    margin: 0;
+    max-width: 640px;
+  }
+  .contact-cta h2 em { color: var(--blue-royal); font-style: italic; }
+  .contact-cta .right {
+    padding-top: 14px;
+    border-top: 1px solid var(--ink);
+  }
+  .contact-cta .right p {
+    color: var(--ink-2);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 18px 0 32px;
+    max-width: 460px;
+  }
+  .contact-cta .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  /* ─── Footer ─── */
+  .footer-line {
+    padding: 36px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    color: rgba(20, 24, 31, 0.45);
+    font-size: 12.5px;
+    font-family: var(--font-mono);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--rule);
+  }
+  .footer-line .right { display: flex; gap: 16px; }
+  .footer-line a { color: rgba(20, 24, 31, 0.55); text-decoration: none; }
+  .footer-line a:hover { color: var(--ink); }
+
+  /* ─── Responsive ─── */
+  @media (max-width: 1080px) {
+    .pillars-head, .proof-grid, .contact-grid {
+      grid-template-columns: 1fr; gap: 48px;
+    }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .pillar, .pillar:last-child, .pillar:not(:first-child) {
+      padding: 32px 0; border-right: 0; border-bottom: 1px solid var(--rule);
+    }
+    .pillar:last-child { border-bottom: 0; }
+    .container-wide { padding: 0 24px; }
+    .top-nav-inner { padding: 16px 0; }
+    .hero { padding: 80px 0 60px; }
+  }
+  @media (max-width: 640px) {
+    .chat-url { display: none; }
+    .chat-body { height: 280px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── TOP NAV ─── -->
+<header class="top-nav">
+  <div class="container-wide top-nav-inner">
+    <a href="/" class="nav-brand">
+      <svg viewBox="-50 -50 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+        <g transform="rotate(-10)">
+          <g stroke="#0E72D9" stroke-width="3.2" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#0E72D9">
+            <circle cx="0" cy="-38" r="6"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(240)"/>
+            <circle r="4.5"/>
+          </g>
+        </g>
+      </svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span>
+    </a>
+    <nav class="nav-actions">
+      <a href="/login.html" class="nav-signin">Sign in</a>
+      <a href="http://localhost:3002/chat" class="nav-try">Try</a>
+    </nav>
+  </div>
+</header>
+
+<!-- ─── HERO (centered) ─── -->
+<section class="hero">
+  <div class="container-wide">
+    <div class="hero-inner">
+      <div class="reveal">
+        <div class="hero-eyebrow">AI Implementation Studio</div>
+      </div>
+      <h1 class="reveal" data-delay="1">AI, <em>implemented</em> inside your business.</h1>
+      <p class="lead reveal" data-delay="2">
+        AI Propulsion designs AI agents, builds the software and workflows that run them, and trains your team to use them properly. Whatever you want to make more efficient with AI, we implement it end to end.
+      </p>
+      <div class="hero-cta-row reveal" data-delay="3">
+        <a href="/sign-in.html" class="btn-primary">Get onboarded</a>
+        <a href="http://localhost:3002/chat" class="quiet-link">Onboarding agent</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── REALISTIC CHAT PANEL ─── -->
+<section class="chat-section">
+  <div class="container-wide">
+    <div class="chat-container">
+
+      <a href="http://localhost:3002/chat" class="chat-link reveal scale" data-delay="2" aria-label="Open the live onboarding chat at AI Propulsion">
+        <div class="chat-window">
+
+          <span class="chat-tap-overlay">Click to open ↗</span>
+
+          <!-- Browser-style title bar -->
+          <div class="chat-titlebar">
+            <div class="chat-traffic">
+              <span class="red"></span>
+              <span class="yellow"></span>
+              <span class="green"></span>
+            </div>
+            <div class="chat-url"><span class="lock">🔒</span>aipropulsion.co/chat</div>
+            <div style="width: 50px;"></div>
+          </div>
+
+          <!-- Agent info bar -->
+          <div class="chat-agent-bar">
+            <div class="chat-avatar">
+              <svg viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+                <g transform="rotate(-10)">
+                  <g stroke="#65A0DC" stroke-width="3.6" stroke-linecap="round" fill="none">
+                    <path d="M 0 -5 Q 5 -20 0 -36"/>
+                    <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+                    <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+                  </g>
+                  <g fill="#65A0DC">
+                    <circle cx="0" cy="-38" r="6.5"/>
+                    <circle cx="0" cy="-38" r="6.5" transform="rotate(120)"/>
+                    <circle cx="0" cy="-38" r="6.5" transform="rotate(240)"/>
+                    <circle r="5"/>
+                  </g>
+                </g>
+              </svg>
+              <span class="online"></span>
+            </div>
+            <div class="chat-agent-info">
+              <div class="name">Onboarding Agent</div>
+              <div class="status"><span class="dot">●</span>Online · typically replies in seconds</div>
+            </div>
+            <div class="chat-agent-actions">
+              <span>⋯</span>
+            </div>
+          </div>
+
+          <!-- Conversation -->
+          <div class="chat-body" id="chat-body">
+            <div class="day-divider"><span>Today</span></div>
+            <!-- messages injected by JS -->
+          </div>
+
+          <!-- Composer (decorative; the whole panel is the link) -->
+          <div class="chat-composer">
+            <div class="chat-input-pill">Tell us what you want to make more efficient…</div>
+            <div class="chat-send">↑</div>
+          </div>
+
+        </div>
+
+        <p class="chat-tap-hint">Click anywhere to open the real onboarding chat<span class="arrow">→</span></p>
+      </a>
+
+    </div>
+
+    <p class="scroll-cue">Keep scrolling</p>
+  </div>
+</section>
+
+<!-- ─── WHAT WE DO ─── -->
+<section class="pillars-section" id="what-we-do">
+  <div class="container-wide">
+    <div class="pillars-head">
+      <span class="label reveal">§ What we do</span>
+      <h2 class="reveal" data-delay="1">Three things. Often <em>combined</em>.</h2>
+    </div>
+    <div class="pillars-grid">
+      <div class="pillar reveal" data-delay="1">
+        <div class="pillar-num">01 · Agents</div>
+        <h3>AI agents that do real work.</h3>
+        <p>Custom AI for the work that takes time — <strong>creating new accounts, reaching out to people, running marketing, generating ideas, optimizing how a process flows</strong>. The repetitive parts of operating a business, handled.</p>
+      </div>
+      <div class="pillar reveal" data-delay="2">
+        <div class="pillar-num">02 · Software</div>
+        <h3>The operating system for your business.</h3>
+        <p>A centralized web app where your tools, data, and AI agents live together. Not just connecting APIs — <strong>the system you actually run from</strong>.</p>
+      </div>
+      <div class="pillar reveal" data-delay="3">
+        <div class="pillar-num">03 · Training</div>
+        <h3>Your team using AI properly.</h3>
+        <p>Showing your team how to use AI in their day-to-day so the system you bought doesn't sit unused. <strong>Knowledge transfer is part of the build, not an add-on.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── PROOF LINE (clients, not accounts) ─── -->
+<section class="proof-line">
+  <div class="container-wide proof-grid">
+    <span class="label reveal">§ One outcome</span>
+    <div>
+      <p class="num reveal" data-delay="1">37 → <em>50–70</em> clients. Hours of manual work, gone.</p>
+      <p class="desc reveal" data-delay="2">A recent client was stretched thin at 37 clients — slow, manual, no time to grow. We built her custom software and an agent to handle the data. She now serves 50–70 clients and spends far less time on admin.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONTACT CTA ─── -->
+<section class="contact-cta">
+  <div class="container-wide contact-grid">
+    <div class="reveal">
+      <span class="label">§ Contact</span>
+      <h2>Want to <em>work</em> with us?</h2>
+    </div>
+    <div class="right reveal" data-delay="1">
+      <p>Send us a note about what you'd like to make more efficient. We read every message ourselves.</p>
+      <div class="actions">
+        <a href="/sign-in.html" class="btn-primary">Get onboarded</a>
+        <a href="mailto:piero1@me.com" class="quiet-link">piero1@me.com</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container-wide footer-line">
+    <span>© 2026 AI Propulsion, LLC.</span>
+    <span class="right">
+      <a href="/login.html">Log in</a>
+      <a href="/sign-in.html">Sign in</a>
+      <a href="http://localhost:3002/chat">Try</a>
+    </span>
+  </div>
+</footer>
+
+<script>
+// ─── Scroll-reveal observer ───
+(function () {
+  const els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) {
+    els.forEach(el => el.classList.add('in-view'));
+    return;
+  }
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('in-view');
+        io.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+  els.forEach(el => io.observe(el));
+})();
+
+// ─── Realistic chat preview animation ───
+(function () {
+  const script = [
+    { role: 'assistant', text: "Hey — AI Propulsion here. What's your name, your role, your company, and what brought you here today?", time: "10:42 AM", typing: 1400 },
+    { role: 'user',      text: "Hi! I'm Maria, COO at a prospect — coffee distributor in Puerto Rico. We're drowning in WhatsApp orders.", time: "10:43 AM", typing: 1800 },
+    { role: 'assistant', text: "Got it. Tell me what's broken: how are orders coming in now, and what does success look like in 3 months?", time: "10:43 AM", typing: 1600 },
+    { role: 'user',      text: "80/week on WhatsApp, copied by hand. We want orders landing in a real system, warehouse notified automatically.", time: "10:44 AM", typing: 2200 },
+    { role: 'assistant', text: "Clear. What tools do you already use, and when do you want this live?", time: "10:44 AM", typing: 1400 },
+    { role: 'user',      text: "QuickBooks Online, Google Workspace, no CRM. Need it live by August — back-to-school is our peak.", time: "10:45 AM", typing: 1800 }
+  ];
+
+  const body = document.getElementById('chat-body');
+  const dayDivider = body.querySelector('.day-divider');
+  let i = 0;
+  let nodes = [];
+  let typingEl = null;
+
+  function avatarSvg() {
+    return `<div class="mini-avatar">
+      <svg viewBox="-50 -50 100 100" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+        <g transform="rotate(-10)">
+          <g stroke="#65A0DC" stroke-width="4.6" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#65A0DC">
+            <circle cx="0" cy="-38" r="7"/>
+            <circle cx="0" cy="-38" r="7" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="7" transform="rotate(240)"/>
+            <circle r="5"/>
+          </g>
+        </g>
+      </svg>
+    </div>`;
+  }
+
+  function clear() {
+    while (body.children.length > 1) body.removeChild(body.lastChild);
+    nodes = [];
+    typingEl = null;
+  }
+
+  function showTyping() {
+    if (typingEl) return;
+    const row = document.createElement('div');
+    row.className = 'chat-typing-row show';
+    row.innerHTML = avatarSvg() + `<div class="chat-typing"><span></span><span></span><span></span></div>`;
+    body.appendChild(row);
+    typingEl = row;
+    body.scrollTop = body.scrollHeight;
+  }
+  function hideTyping() {
+    if (typingEl) { typingEl.remove(); typingEl = null; }
+  }
+
+  function addMsg(role, text, time) {
+    const wrap = document.createElement('div');
+    wrap.className = 'chat-msg ' + role;
+    const inner = role === 'assistant'
+      ? avatarSvg() + `<div class="bubble-wrap"><div class="chat-bubble">${text}</div><div class="chat-time">${time}</div></div>`
+      : `<div class="bubble-wrap"><div class="chat-bubble">${text}</div><div class="chat-time">${time}</div></div>`;
+    wrap.innerHTML = inner;
+    body.appendChild(wrap);
+    requestAnimationFrame(() => wrap.classList.add('show'));
+    nodes.push(wrap);
+    // Cap visible messages
+    while (nodes.length > 4) {
+      const old = nodes.shift();
+      old.style.opacity = '0';
+      old.style.transform = 'translateY(-12px)';
+      setTimeout(() => old.remove(), 400);
+    }
+    body.scrollTop = body.scrollHeight;
+  }
+
+  function step() {
+    if (i >= script.length) {
+      setTimeout(() => { i = 0; clear(); step(); }, 3500);
+      return;
+    }
+    const m = script[i];
+    if (m.role === 'assistant') showTyping();
+    setTimeout(() => {
+      hideTyping();
+      addMsg(m.role, m.text, m.time);
+      i += 1;
+      setTimeout(step, m.role === 'assistant' ? 2200 : 1200);
+    }, m.typing);
+  }
+
+  setTimeout(step, 1000);
+})();
+</script>
+
+</body>
+</html>

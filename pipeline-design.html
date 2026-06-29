@@ -1,0 +1,380 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Pipeline at a Glance — AI Propulsion.</title>
+<meta name="description" content="The 6-step client journey, laid out step by step so you can scan it and check it's right." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body { background: var(--paper); color: var(--ink); }
+
+  /* — Top nav — */
+  .top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250, 250, 247, 0.85);
+    backdrop-filter: saturate(140%) blur(12px);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .top-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; max-width: 1200px; margin: 0 auto;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand .wordmark { font-size: 20px; }
+  .top-links { display: flex; gap: 22px; align-items: center; }
+  .top-links a { color: var(--ink-2); font-size: 13.5px; font-weight: 500; text-decoration: none; }
+  .top-links a:hover { color: var(--ink); }
+  .top-links .home-cta { background: var(--ink); color: var(--paper); padding: 9px 16px; border-radius: 4px; line-height: 1; }
+
+  .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
+
+  /* — Header — */
+  header.head { padding: 72px 0 40px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-royal); margin-bottom: 22px;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--blue-royal); }
+  h1.title {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: clamp(44px, 6.5vw, 76px); line-height: 1.02;
+    letter-spacing: -0.02em; margin: 0 0 20px;
+  }
+  h1.title em { color: var(--blue-royal); }
+  .lede { font-size: 18px; line-height: 1.55; color: var(--ink-2); max-width: 640px; }
+
+  /* — Flow arrow strip — */
+  .flow {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+    margin: 36px 0 8px; font-family: var(--font-mono); font-size: 12px;
+  }
+  .flow .pill {
+    background: var(--paper-warm); border: 1px solid var(--rule);
+    border-radius: 999px; padding: 7px 14px; color: var(--ink);
+    letter-spacing: 0.04em;
+  }
+  .flow .arrow { color: var(--blue-royal); font-weight: 600; }
+
+  /* — Steps — */
+  .steps { margin: 48px 0 24px; }
+  .step {
+    display: grid; grid-template-columns: 96px 1fr; gap: 28px;
+    padding: 36px 0; border-top: 1px solid var(--rule);
+  }
+  .step:last-child { border-bottom: 1px solid var(--rule); }
+  .step .num {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 64px; line-height: 1; color: var(--blue-royal);
+  }
+  .step .label {
+    font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--ink-2); margin-top: 8px;
+  }
+  .step h2 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 34px; line-height: 1.1; margin: 2px 0 18px;
+  }
+  .quote {
+    border-left: 2px solid var(--blue-royal); padding: 4px 0 4px 16px;
+    font-size: 16px; line-height: 1.5; color: var(--ink); font-style: italic;
+    margin: 0 0 22px;
+  }
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px 32px; }
+  .block .h {
+    font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.16em;
+    text-transform: uppercase; color: var(--blue-royal); margin: 0 0 8px;
+  }
+  .block ul { margin: 0; padding-left: 18px; }
+  .block li { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); margin-bottom: 5px; }
+  .block p { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); margin: 0; }
+  .question { font-size: 15px; color: var(--ink); }
+  .question strong { color: var(--ink); }
+
+  .gate {
+    grid-column: 1 / -1; margin-top: 18px;
+    background: var(--paper-warm); border: 1px solid var(--rule);
+    border-radius: 6px; padding: 14px 18px;
+    font-size: 14px; line-height: 1.5; color: var(--ink);
+  }
+  .gate b { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--blue-royal); }
+
+  /* — Closing principles — */
+  .princ { margin: 56px 0 80px; padding-top: 40px; border-top: 2px solid var(--ink); }
+  .princ h3 {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 30px; margin: 0 0 22px;
+  }
+  .princ ol { margin: 0; padding-left: 22px; columns: 2; column-gap: 40px; }
+  .princ li { font-size: 14.5px; line-height: 1.5; color: var(--ink-2); margin-bottom: 12px; break-inside: avoid; }
+  .foot { padding: 32px 0 60px; border-top: 1px solid var(--rule); }
+  .foot a { color: var(--blue-royal); text-decoration: none; font-size: 14px; }
+
+  @media (max-width: 720px) {
+    .step { grid-template-columns: 1fr; gap: 8px; }
+    .step .num { font-size: 48px; }
+    .grid2 { grid-template-columns: 1fr; }
+    .princ ol { columns: 1; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="top-inner">
+    <a class="brand" href="index.html">
+      <svg viewBox="-50 -50 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="overflow: visible">
+        <g transform="rotate(-10)">
+          <g stroke="#0E72D9" stroke-width="2.9" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#0E72D9">
+            <circle cx="0" cy="-38" r="5.5"/>
+            <circle cx="0" cy="-38" r="5.5" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="5.5" transform="rotate(240)"/>
+            <circle r="4"/>
+          </g>
+        </g>
+      </svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span>
+    </a>
+    <div class="top-links">
+      <a href="index.html">Home</a>
+      <a href="pipeline.html">Full method</a>
+      <a href="studio.html">Studio</a>
+      <a href="sign-in.html" class="home-cta">Sign in</a>
+    </div>
+  </div>
+</nav>
+
+<div class="wrap">
+  <header class="head">
+    <div class="eyebrow">Pipeline at a glance</div>
+    <h1 class="title">The journey, <em>step by step.</em></h1>
+    <p class="lede">Every client travels six steps — from first contact to a running, improving AI system. Scan this page to see the whole path at once and check it's right. The shape never changes: <strong>understand → design → prove small → scale.</strong></p>
+
+    <div class="flow">
+      <span class="pill">0 · Engage</span><span class="arrow">→</span>
+      <span class="pill">1 · Diagnose</span><span class="arrow">→</span>
+      <span class="pill">2 · Design</span><span class="arrow">→</span>
+      <span class="pill">3 · Decide</span><span class="arrow">→</span>
+      <span class="pill">4 · Deploy</span><span class="arrow">→</span>
+      <span class="pill">5 · Drive</span>
+    </div>
+  </header>
+
+  <section class="steps">
+
+    <!-- 0 -->
+    <article class="step">
+      <div>
+        <div class="num">0</div>
+        <div class="label">Engage</div>
+      </div>
+      <div>
+        <p class="quote">"I had a conversation, they clearly understood what I'm dealing with, and I signed up to explore it properly."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">Is this a real client worth a discovery — and do I have enough context to make it efficient?</p>
+          </div>
+          <div class="block">
+            <p class="h">What the client does</p>
+            <ul><li>Answers the intake chatbot</li><li>Books a discovery call</li><li>Signs a discovery agreement</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do</p>
+            <ul><li>Send the chatbot link</li><li>Read &amp; verify the qualification doc</li><li>Decide PROCEED / NEEDS-INFO / DECLINE</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You walk away with</p>
+            <ul><li>qualification.md + developer-brief.md</li><li>Signed discovery agreement</li><li>Discovery on the calendar</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate —</b> Qualification doc read &amp; approved, client understands what discovery costs, discovery booked.</div>
+      </div>
+    </article>
+
+    <!-- 1 -->
+    <article class="step">
+      <div>
+        <div class="num">1</div>
+        <div class="label">Diagnose</div>
+      </div>
+      <div>
+        <p class="quote">"They talked to the people who actually do the work and mapped out exactly how my business runs."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">What is actually broken, and what is genuinely worth fixing with AI — and what should we NOT touch?</p>
+          </div>
+          <div class="block">
+            <p class="h">What the client does</p>
+            <ul><li>Joins discovery call(s)</li><li>Gives access to a real operator, not just the founder</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do</p>
+            <ul><li>Map every workflow (trigger → steps → cost)</li><li>Audit the stack &amp; data flow</li><li>Rank bottlenecks by hours/$ wasted</li><li>Classify each: automate / agent / integrate / fix-first / leave</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You walk away with</p>
+            <ul><li>workflow-map.md, stack-audit.md</li><li>opportunity-register.md (ranked)</li><li>success-metrics.md (numeric, 90-day)</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate —</b> Operator confirms the map, top 3 opportunities quantified in hours/$, success metrics numeric &amp; time-bound, "cost of doing nothing per month" is answered.</div>
+      </div>
+    </article>
+
+    <!-- 2 -->
+    <article class="step">
+      <div>
+        <div class="num">2</div>
+        <div class="label">Design</div>
+      </div>
+      <div>
+        <p class="quote">"They showed me a clear picture of what they'll build, how it fits my tools, and what it'll be worth — no hand-waving."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">What exactly will we build, and what will it return?</p>
+          </div>
+          <div class="block">
+            <p class="h">What the client does</p>
+            <ul><li>Picks the top 1–3 opportunities for the first engagement — not all of them</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do</p>
+            <ul><li>Architecture diagram + data model</li><li>Agent specs (inputs, tools, approvals, off-switch)</li><li>Integration plan</li><li>ROI model using real Phase-1 numbers</li><li>Risks + milestones</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You walk away with</p>
+            <ul><li>design/architecture.md, agents/*.md</li><li>integrations.md, data-model.md</li><li>roi-model.md, risks.md, milestones.md</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate —</b> A second engineer could build it without asking the client; every agent has a human approval point; ROI uses real numbers; every risk has a mitigation.</div>
+      </div>
+    </article>
+
+    <!-- 3 -->
+    <article class="step">
+      <div>
+        <div class="num">3</div>
+        <div class="label">Decide</div>
+      </div>
+      <div>
+        <p class="quote">"I know precisely what I'm getting, what it costs, and why it's worth it. I signed."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">What is in scope, what is the price, and is it closed?</p>
+          </div>
+          <div class="block">
+            <p class="h">What the client does</p>
+            <ul><li>Reviews the proposal</li><li>Raises objections live</li><li>Signs &amp; pays deposit</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do</p>
+            <ul><li>Scope: in / out / later — explicit</li><li>Value-based pricing + retainer (never hours)</li><li>Branded proposal &amp; agreement</li><li>Proposal review call → close</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You walk away with</p>
+            <ul><li>decide/scope.md</li><li>proposal.pdf + signed agreement.pdf</li><li>kickoff-plan.md</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate —</b> Agreement signed, deposit received, kickoff on the calendar within 14 days.</div>
+      </div>
+    </article>
+
+    <!-- 4 -->
+    <article class="step">
+      <div>
+        <div class="num">4</div>
+        <div class="label">Deploy</div>
+      </div>
+      <div>
+        <p class="quote">"It's live, it actually works on my real data, and my own team can run it without calling me."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">Does it work in real life — run by their people, not us?</p>
+          </div>
+          <div class="block">
+            <p class="h">The client experiences (in order)</p>
+            <ul><li>Kickoff → Build → Pilot</li><li>Harden → Train → Handoff</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do</p>
+            <ul><li>Build per design, weekly demos</li><li>Pilot on real data, human reviews every output</li><li>Harden edge cases + add off-switch</li><li>Train the operators, not the founder</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You walk away with</p>
+            <ul><li>Working system in client repo</li><li>runbook.md, sop/*.md, training/</li><li>acceptance.md (checked &amp; dated), handoff.md</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate —</b> Every acceptance criterion checked &amp; dated; client ran it solo for 3 business days; off-switches tested; retainer active.</div>
+      </div>
+    </article>
+
+    <!-- 5 -->
+    <article class="step">
+      <div>
+        <div class="num">5</div>
+        <div class="label">Drive</div>
+      </div>
+      <div>
+        <p class="quote">"Every month I get a report showing what it saved me, and they keep bringing the next improvement."</p>
+        <div class="grid2">
+          <div class="block">
+            <p class="h">The one question</p>
+            <p class="question">Is it proving ROI month over month — and what do we build next?</p>
+          </div>
+          <div class="block">
+            <p class="h">What the client does</p>
+            <ul><li>Joins monthly operating review</li><li>Joins quarterly business review</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">What you do (recurring)</p>
+            <ul><li>Monthly report from success-metrics.md</li><li>Health monitoring + alerts</li><li>Continuous improvement</li><li>Expansion → next workflow re-enters at Step 2</li></ul>
+          </div>
+          <div class="block">
+            <p class="h">You produce each cycle</p>
+            <ul><li>drive/reports/&lt;month&gt;.md</li><li>incidents/, changelog.md</li><li>qbr/&lt;quarter&gt;.md</li></ul>
+          </div>
+        </div>
+        <div class="gate"><b>Gate (ongoing) —</b> Report sent on time, SLAs met, ≥1 improvement shipped per month, retainer renewed or expanded.</div>
+      </div>
+    </article>
+
+  </section>
+
+  <section class="princ">
+    <h3>The 8 rules behind every step</h3>
+    <ol>
+      <li><strong>Diagnose before you design. Design before you build.</strong> Skipping order is the #1 cause of failed AI projects.</li>
+      <li><strong>Never automate a broken workflow.</strong> Fix the process first, then automate it.</li>
+      <li><strong>Humans own decisions. Agents own execution.</strong> Strategy, pricing, and final approvals stay human.</li>
+      <li><strong>Everything is written down.</strong> Markdown in the client folder is the source of truth.</li>
+      <li><strong>Pilot before scale.</strong> One workflow live and proven beats five promised.</li>
+      <li><strong>Measure outcomes, not features.</strong> Hours saved, error rate, response time — not "we deployed an agent."</li>
+      <li><strong>Reversibility first.</strong> Every automation has an off-switch and a manual fallback for the first 30 days.</li>
+      <li><strong>Context compounds.</strong> Everything learned lives in the client folder so the next step starts from full memory.</li>
+    </ol>
+  </section>
+
+  <div class="foot">
+    <a href="pipeline.html">→ Read the full method in detail</a><br>
+    <a href="index.html">← back to home</a>
+  </div>
+</div>
+
+</body>
+</html>

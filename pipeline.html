@@ -1,0 +1,1107 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The AI Implementation Pipeline — AI Propulsion.</title>
+<meta name="description" content="The six-phase methodology AI Propulsion uses to implement AI in any business — from first contact to long-term operation." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body { background: var(--paper); color: var(--ink); }
+
+  .container-doc { max-width: 920px; margin: 0 auto; padding: 0 28px; }
+
+  /* — Top nav — */
+  .top {
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250, 250, 247, 0.85);
+    backdrop-filter: saturate(140%) blur(12px);
+    -webkit-backdrop-filter: saturate(140%) blur(12px);
+    border-bottom: 1px solid var(--rule);
+  }
+  .top-inner {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 28px; max-width: 1200px; margin: 0 auto;
+  }
+  .brand { display: inline-flex; align-items: center; gap: 12px; text-decoration: none; }
+  .brand svg { display: block; }
+  .brand .wordmark { font-size: 20px; }
+  .top-links { display: flex; gap: 22px; align-items: center; }
+  .top-links a {
+    color: var(--ink-2); font-size: 13.5px; font-weight: 500;
+    text-decoration: none;
+  }
+  .top-links a:hover { color: var(--ink); }
+  .top-links .home-cta {
+    background: var(--ink); color: var(--paper);
+    padding: 9px 16px; border-radius: 4px; line-height: 1;
+  }
+  .top-links .home-cta:hover { background: var(--ink-2); color: var(--paper); }
+
+  /* — Header — */
+  header.doc-head { padding: 80px 0 56px; }
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.22em; text-transform: uppercase;
+    color: var(--blue-royal); margin-bottom: 24px;
+  }
+  .eyebrow::before { content: ""; width: 28px; height: 1px; background: var(--blue-royal); }
+  h1.title {
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 400;
+    font-size: clamp(48px, 7vw, 88px);
+    line-height: 1.0; letter-spacing: -0.02em;
+    color: var(--ink); margin: 0 0 24px;
+  }
+  h1.title em { color: var(--blue-royal); font-style: italic; }
+  p.dek {
+    font-size: 19px; line-height: 1.55; color: var(--ink-2);
+    max-width: 680px; margin: 0 0 28px;
+  }
+  .meta-row {
+    display: flex; gap: 28px; flex-wrap: wrap;
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.55);
+    padding-top: 18px; border-top: 1px solid var(--rule);
+  }
+  .meta-row strong { color: var(--ink-2); font-weight: 500; }
+
+  /* — Section scaffolding — */
+  section { padding: 56px 0; border-top: 1px solid var(--rule); }
+  section:first-of-type { border-top: none; }
+  h2 {
+    font-family: var(--font-display);
+    font-style: italic; font-weight: 400;
+    font-size: clamp(34px, 4.4vw, 52px);
+    line-height: 1.05; letter-spacing: -0.015em;
+    color: var(--ink); margin: 0 0 24px;
+  }
+  h2 em { color: var(--blue-royal); }
+  h3 {
+    font-family: var(--font-sans);
+    font-size: 13.5px; font-weight: 600;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-2); margin: 28px 0 10px;
+  }
+  p { font-size: 16px; line-height: 1.65; color: var(--ink-2); margin: 0 0 16px; }
+  p.lead { font-size: 18px; color: var(--ink); }
+  ul, ol { padding-left: 22px; margin: 0 0 16px; }
+  ul li, ol li { margin: 6px 0; line-height: 1.6; color: var(--ink-2); }
+  strong { color: var(--ink); font-weight: 600; }
+  code {
+    font-family: var(--font-mono); font-size: 12.5px;
+    background: var(--paper-warm); padding: 1px 6px; border-radius: 3px;
+    color: var(--ink);
+  }
+
+  /* — Pipeline table — */
+  .pipeline-table {
+    width: 100%; border-collapse: collapse;
+    font-size: 14px; margin: 18px 0 8px;
+  }
+  .pipeline-table th, .pipeline-table td {
+    text-align: left; padding: 14px 10px;
+    border-bottom: 1px solid var(--rule); vertical-align: top;
+  }
+  .pipeline-table th {
+    font-family: var(--font-mono); font-size: 10.5px;
+    font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.55); border-bottom: 1px solid var(--rule-strong);
+  }
+  .pipeline-table td.num {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 22px; color: var(--blue-royal); width: 48px;
+  }
+  .pipeline-table td.phase strong {
+    font-family: var(--font-sans); font-size: 15px;
+    color: var(--ink); display: block;
+  }
+
+  /* — Principles grid — */
+  .principles { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0; margin-top: 16px; }
+  .principle {
+    padding: 22px 22px 22px 0; border-top: 1px solid var(--rule);
+  }
+  .principle:nth-child(odd) { padding-right: 28px; border-right: 1px solid var(--rule); }
+  .principle:nth-child(even) { padding-left: 28px; }
+  .principle .n {
+    font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.2em;
+    color: var(--blue-royal); margin-bottom: 8px;
+  }
+  .principle h4 {
+    font-family: var(--font-sans); font-size: 15px; font-weight: 600;
+    color: var(--ink); margin: 0 0 6px; line-height: 1.4;
+  }
+  .principle p { font-size: 14.5px; margin: 0; color: var(--ink-2); }
+
+  /* — Phase card — */
+  .phase-card {
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 36px;
+    margin: 28px 0;
+    background: #fff;
+  }
+  .phase-card .head { display: flex; gap: 24px; align-items: baseline; margin-bottom: 8px; }
+  .phase-card .num {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 64px; line-height: 0.9; color: var(--blue-royal);
+    flex: 0 0 auto;
+  }
+  .phase-card .head .title-block { flex: 1; }
+  .phase-card h3.phase-title {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 36px; color: var(--ink); margin: 0 0 8px;
+    text-transform: none; letter-spacing: -0.01em;
+  }
+  .phase-card .tag-row {
+    display: flex; gap: 16px; flex-wrap: wrap;
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.55);
+  }
+  .phase-card .obj {
+    font-size: 17px; line-height: 1.55; color: var(--ink);
+    border-left: 2px solid var(--blue-royal); padding-left: 18px;
+    margin: 20px 0 26px;
+  }
+  .phase-card h4 {
+    font-family: var(--font-sans); font-size: 11px; font-weight: 600;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-royal); margin: 22px 0 10px;
+  }
+  .phase-card ul, .phase-card ol { padding-left: 20px; margin: 0 0 8px; }
+  .phase-card li { font-size: 14.5px; line-height: 1.6; color: var(--ink-2); margin: 4px 0; }
+
+  .gate {
+    background: var(--paper-warm);
+    border-radius: 4px;
+    padding: 18px 22px;
+    margin: 18px 0 0;
+  }
+  .gate h4 { color: var(--ink); margin-top: 0; }
+
+  /* — Example table — */
+  .example-table {
+    width: 100%; border-collapse: collapse; font-size: 14px; margin-top: 8px;
+  }
+  .example-table th, .example-table td {
+    text-align: left; padding: 14px 12px;
+    border-bottom: 1px solid var(--rule); vertical-align: top;
+  }
+  .example-table th {
+    font-family: var(--font-mono); font-size: 10.5px;
+    font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(20, 24, 31, 0.55);
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  .example-table td.ph {
+    font-family: var(--font-display); font-style: italic;
+    color: var(--blue-royal); white-space: nowrap; width: 140px;
+  }
+
+  /* — Anti-patterns — */
+  .anti {
+    background: var(--ink); color: rgba(255, 255, 255, 0.86);
+    border-radius: 6px; padding: 40px;
+  }
+  .anti h2 { color: #fff; }
+  .anti h2 em { color: var(--blue-sky); }
+  .anti ul { padding-left: 22px; }
+  .anti li {
+    color: rgba(255, 255, 255, 0.82); margin: 10px 0;
+    font-size: 15px; line-height: 1.55;
+  }
+  .anti li::marker { color: var(--blue-sky); }
+
+  /* — Catalog — */
+  .cat-intro {
+    background: var(--paper-warm);
+    border-radius: 6px;
+    padding: 28px 32px;
+    margin: 8px 0 36px;
+  }
+  .cat-intro p { margin: 0; color: var(--ink); font-size: 15.5px; }
+  .cat-intro .how {
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--blue-royal); margin-bottom: 10px; display: block;
+  }
+
+  .cat-group { margin: 40px 0; }
+  .cat-group h3.cat-title {
+    font-family: var(--font-display); font-style: italic; font-weight: 400;
+    font-size: 30px; line-height: 1.05; letter-spacing: -0.01em;
+    color: var(--ink); margin: 0 0 6px;
+    text-transform: none;
+  }
+  .cat-group .cat-sub {
+    font-family: var(--font-mono); font-size: 10.5px;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--blue-royal); margin: 0 0 18px;
+  }
+  .cat-group .cat-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 1px; background: var(--rule);
+    border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+  }
+  .cat-card {
+    background: #fff; padding: 18px 22px;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .cat-card .name {
+    font-family: var(--font-sans); font-size: 14.5px; font-weight: 600;
+    color: var(--ink); line-height: 1.35;
+  }
+  .cat-card .desc {
+    font-family: var(--font-sans); font-size: 13.5px;
+    color: var(--ink-2); line-height: 1.5; margin: 0;
+  }
+
+  /* Industry playbooks: full-width recipe rows */
+  .cat-group .recipe-list {
+    display: flex; flex-direction: column;
+    border: 1px solid var(--rule); border-radius: 4px; overflow: hidden;
+  }
+  .recipe-row {
+    display: grid; grid-template-columns: 180px 1fr;
+    gap: 24px; padding: 18px 22px;
+    background: #fff; border-bottom: 1px solid var(--rule);
+  }
+  .recipe-row:last-child { border-bottom: none; }
+  .recipe-row .industry {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 19px; color: var(--blue-royal);
+    line-height: 1.3;
+  }
+  .recipe-row .recipe {
+    font-size: 13.5px; color: var(--ink-2); line-height: 1.55;
+  }
+  .recipe-row .recipe .step {
+    color: var(--ink); font-weight: 500;
+  }
+
+  /* Patterns: chip-style */
+  .pattern-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+  .pattern-card {
+    border: 1px solid var(--rule); border-radius: 4px;
+    padding: 18px 22px; background: #fff;
+  }
+  .pattern-card .qname {
+    font-family: var(--font-display); font-style: italic;
+    font-size: 19px; color: var(--ink); line-height: 1.25;
+    margin-bottom: 6px;
+  }
+  .pattern-card .qdesc { font-size: 13.5px; color: var(--ink-2); line-height: 1.55; margin: 0; }
+
+  @media (max-width: 720px) {
+    .cat-group .cat-grid { grid-template-columns: 1fr; }
+    .pattern-grid { grid-template-columns: 1fr; }
+    .recipe-row { grid-template-columns: 1fr; gap: 6px; padding: 16px 18px; }
+    .recipe-row .industry { font-size: 17px; }
+  }
+
+  /* — Footer — */
+  footer.doc-foot {
+    padding: 56px 0 80px; border-top: 1px solid var(--rule);
+    color: rgba(20, 24, 31, 0.55);
+    font-family: var(--font-mono); font-size: 11px;
+    letter-spacing: 0.16em; text-transform: uppercase;
+  }
+  footer.doc-foot .row { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+
+  /* — Mobile — */
+  @media (max-width: 720px) {
+    .principles { grid-template-columns: 1fr; }
+    .principle:nth-child(odd), .principle:nth-child(even) {
+      padding: 22px 0; border-right: none;
+    }
+    .phase-card { padding: 26px 22px; }
+    .phase-card .head { flex-direction: column; gap: 4px; }
+    .phase-card .num { font-size: 48px; }
+    .phase-card h3.phase-title { font-size: 28px; }
+    .pipeline-table { font-size: 13px; }
+    .pipeline-table td, .pipeline-table th { padding: 10px 6px; }
+    .example-table td.ph { width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="top-inner">
+    <a class="brand" href="index.html">
+      <svg viewBox="-50 -50 100 100" width="32" height="32" xmlns="http://www.w3.org/2000/svg" style="overflow: visible">
+        <g transform="rotate(-10)">
+          <g stroke="#0E72D9" stroke-width="2.9" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#0E72D9">
+            <circle cx="0" cy="-38" r="5.5"/>
+            <circle cx="0" cy="-38" r="5.5" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="5.5" transform="rotate(240)"/>
+            <circle r="4"/>
+          </g>
+        </g>
+      </svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span>
+    </a>
+    <div class="top-links">
+      <a href="index.html">Home</a>
+      <a href="studio.html">Studio</a>
+      <a href="sign-in.html" class="home-cta">Sign in</a>
+    </div>
+  </div>
+</nav>
+
+<div class="container-doc">
+
+  <header class="doc-head">
+    <div class="eyebrow">Methodology · Internal &amp; Client-Facing</div>
+    <h1 class="title">The AI Implementation <em>Pipeline.</em></h1>
+    <p class="dek">The six-phase methodology AI Propulsion uses to implement AI in any business — from first contact to long-term operation. The same pipeline runs for a two-person team or a two-hundred-person company. Only the depth of each phase changes.</p>
+    <div class="meta-row">
+      <div><strong>Version</strong> · 1.0</div>
+      <div><strong>Owner</strong> · Piero Pereira</div>
+      <div><strong>Companion to</strong> · AGENCY_OS.md</div>
+      <div><strong>Updated</strong> · 2026-05-24</div>
+      <div><a href="#catalog" style="color: var(--blue-royal); text-decoration: none;">→ Jump to the Catalog</a></div>
+    </div>
+    <div style="margin-top: 28px;">
+      <a href="pipeline-design.html" style="display: inline-flex; align-items: center; gap: 10px; background: var(--blue-royal); color: var(--paper); font-family: var(--font-mono); font-size: 12.5px; letter-spacing: 0.06em; text-decoration: none; padding: 13px 22px; border-radius: 4px;">
+        See the pipeline at a glance →
+      </a>
+    </div>
+  </header>
+
+  <section>
+    <h2>Pipeline <em>at a glance.</em></h2>
+    <p class="lead">Six phases. No phase is skipped. Each phase has a single objective, explicit entry and exit criteria, defined deliverables, a quality gate, and a clear owner. If a gate fails, the engagement returns to the previous phase — it does not advance with open issues.</p>
+    <table class="pipeline-table">
+      <thead>
+        <tr><th>#</th><th>Phase</th><th>Objective</th><th>Owner</th><th>Duration</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td class="num">0</td>
+          <td class="phase"><strong>Engage</strong></td>
+          <td>Convert qualified interest into a signed discovery agreement</td>
+          <td>Human + Intake Agent</td>
+          <td>2–5 days</td>
+        </tr>
+        <tr>
+          <td class="num">1</td>
+          <td class="phase"><strong>Diagnose</strong></td>
+          <td>Map the business, surface real AI opportunities, validate fit</td>
+          <td>Human-led, agent-supported</td>
+          <td>1–2 weeks</td>
+        </tr>
+        <tr>
+          <td class="num">2</td>
+          <td class="phase"><strong>Design</strong></td>
+          <td>Architect the solution, agents, integrations, data model, ROI</td>
+          <td>Solutions Architect + agents</td>
+          <td>1–2 weeks</td>
+        </tr>
+        <tr>
+          <td class="num">3</td>
+          <td class="phase"><strong>Decide</strong></td>
+          <td>Scope, price, propose, and close</td>
+          <td>Human-led</td>
+          <td>3–7 days</td>
+        </tr>
+        <tr>
+          <td class="num">4</td>
+          <td class="phase"><strong>Deploy</strong></td>
+          <td>Build, integrate, pilot, harden, train, hand off</td>
+          <td>Build agents + human review</td>
+          <td>3–8 weeks</td>
+        </tr>
+        <tr>
+          <td class="num">5</td>
+          <td class="phase"><strong>Drive</strong></td>
+          <td>Operate, monitor, optimize, expand</td>
+          <td>Support agents + human strategist</td>
+          <td>Ongoing</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>Operating <em>principles.</em></h2>
+    <p>Apply to every phase.</p>
+    <div class="principles">
+      <div class="principle">
+        <div class="n">01</div>
+        <h4>Diagnose before you design. Design before you build.</h4>
+        <p>Skipping order is the #1 cause of failed AI projects.</p>
+      </div>
+      <div class="principle">
+        <div class="n">02</div>
+        <h4>Never automate a broken workflow.</h4>
+        <p>Fix the process, then automate it.</p>
+      </div>
+      <div class="principle">
+        <div class="n">03</div>
+        <h4>Humans own decisions. Agents own execution.</h4>
+        <p>Strategy, pricing, hiring, and final approvals stay human.</p>
+      </div>
+      <div class="principle">
+        <div class="n">04</div>
+        <h4>Every deliverable is written down.</h4>
+        <p>Markdown in the client folder is the source of truth.</p>
+      </div>
+      <div class="principle">
+        <div class="n">05</div>
+        <h4>Pilot before scale.</h4>
+        <p>One workflow live and proven beats five workflows promised.</p>
+      </div>
+      <div class="principle">
+        <div class="n">06</div>
+        <h4>Measure outcomes, not features.</h4>
+        <p>Hours saved, error rate, revenue per rep, response time — not "we deployed an agent."</p>
+      </div>
+      <div class="principle">
+        <div class="n">07</div>
+        <h4>Reversibility first.</h4>
+        <p>Every automation has an off-switch and a manual fallback for the first 30 days.</p>
+      </div>
+      <div class="principle">
+        <div class="n">08</div>
+        <h4>Context compounds.</h4>
+        <p>Everything learned lives in <code>clients/&lt;slug&gt;/</code> so the next phase starts from full memory.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>The <em>six phases.</em></h2>
+
+    <!-- PHASE 0 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">0</div>
+        <div class="title-block">
+          <h3 class="phase-title">Engage</h3>
+          <div class="tag-row">
+            <div>Owner · Human + Intake Agent</div>
+            <div>Duration · 2–5 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Turn a qualified prospect into a signed discovery agreement with full context loaded into the system.</div>
+
+      <h4>Entry criteria</h4>
+      <ul>
+        <li>Lead has been generated and minimally qualified — budget signal, decision-maker access, fit with the offer.</li>
+        <li>Prospect has agreed to a discovery conversation.</li>
+      </ul>
+
+      <h4>Activities</h4>
+      <ol>
+        <li>Send the intake chatbot link.</li>
+        <li>Chatbot collects: business profile, stack, pain points, desired outcomes, budget signal, timeline, decision-maker access.</li>
+        <li>Founder reviews <code>qualification.md</code> and <code>developer-brief.md</code> in the client folder.</li>
+        <li>Verify key claims, decide PROCEED / NEEDS-INFO / DECLINE.</li>
+        <li>Schedule discovery call. Send pre-call brief.</li>
+        <li>Sign discovery agreement — paid or scoped free, never open-ended.</li>
+      </ol>
+
+      <h4>Deliverables</h4>
+      <ul>
+        <li><code>context/qualification.md</code></li>
+        <li><code>context/developer-brief.md</code></li>
+        <li><code>context/transcripts/qualification-chat.md</code></li>
+        <li>Signed discovery agreement (PDF in client folder)</li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — exit criteria</h4>
+        <ul>
+          <li>Founder has read and approved the qualification doc.</li>
+          <li>Prospect understands what discovery is and what it costs.</li>
+          <li>Discovery date is on the calendar.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 1 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">1</div>
+        <div class="title-block">
+          <h3 class="phase-title">Diagnose</h3>
+          <div class="tag-row">
+            <div>Owner · Human-led, agent-supported</div>
+            <div>Duration · 1–2 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Understand the business deeply enough to know what to build, what <em>not</em> to build, and what to fix before building anything.</div>
+
+      <h4>Entry criteria</h4>
+      <ul>
+        <li>Phase 0 gate passed.</li>
+        <li>Access to one operator who actually runs the workflows — not only the founder.</li>
+      </ul>
+
+      <h4>Activities</h4>
+      <ol>
+        <li><strong>Discovery call(s)</strong> — human-led, recorded, transcribed.</li>
+        <li><strong>Workflow mapping</strong> — trigger → steps → tools → owner → frequency → time cost → failure points.</li>
+        <li><strong>Stack audit</strong> — every SaaS tool, where it sits, what data it holds, what's integrated vs. manual.</li>
+        <li><strong>Bottleneck inventory</strong> — what is slow, repetitive, error-prone, or expensive, ranked by hours/$ wasted per month.</li>
+        <li><strong>Opportunity surfacing</strong> — AUTOMATE / AI-AGENT / INTEGRATE / FIX-PROCESS-FIRST / LEAVE-ALONE.</li>
+        <li><strong>Constraint map</strong> — compliance, data residency, internal politics, AI literacy.</li>
+        <li><strong>Outcome definition</strong> — what does success look like in 90 days, in numbers.</li>
+      </ol>
+
+      <h4>Deliverables</h4>
+      <ul>
+        <li><code>context/discovery-notes.md</code></li>
+        <li><code>context/discovery-transcript.md</code></li>
+        <li><code>context/workflow-map.md</code></li>
+        <li><code>context/stack-audit.md</code></li>
+        <li><code>context/opportunity-register.md</code></li>
+        <li><code>context/constraints.md</code></li>
+        <li><code>context/success-metrics.md</code></li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — exit criteria</h4>
+        <ul>
+          <li>At least one operator has confirmed the workflow map is accurate.</li>
+          <li>Top 3 opportunities are quantified in hours or dollars per month.</li>
+          <li>Success metrics are numeric and time-bound.</li>
+          <li>We can answer: "If we do nothing, what does this cost the business per month?"</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">2</div>
+        <div class="title-block">
+          <h3 class="phase-title">Design</h3>
+          <div class="tag-row">
+            <div>Owner · Solutions Architect + agents</div>
+            <div>Duration · 1–2 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Produce architecture, agent specs, integration plan, and ROI case a builder could execute without ambiguity and a decision-maker could approve without hand-waving.</div>
+
+      <h4>Entry criteria</h4>
+      <ul>
+        <li>Phase 1 gate passed.</li>
+        <li>Top 1–3 opportunities selected for the initial engagement — not all of them. Sequencing matters.</li>
+      </ul>
+
+      <h4>Activities</h4>
+      <ol>
+        <li><strong>Solution architecture</strong> — diagram of systems, data flow, agents, humans, checkpoints, external services.</li>
+        <li><strong>Agent specs</strong> — purpose, inputs, outputs, tools, prompts, approval points, success metric, failure handling, off-switch.</li>
+        <li><strong>Integration plan</strong> — per SaaS: API/auth, data direction, sync frequency, error handling, credential owner.</li>
+        <li><strong>Data model</strong> — entities, where they live, system of record.</li>
+        <li><strong>Process redesign</strong> — for workflows being redesigned, document the new process before the build spec.</li>
+        <li><strong>ROI model</strong> — projected hours saved, error reduction, revenue lift, with assumptions stated.</li>
+        <li><strong>Risk register</strong> — what could go wrong, with named mitigation.</li>
+        <li><strong>Milestone breakdown</strong> — phased build with checkpoints, not a single "delivery" date.</li>
+      </ol>
+
+      <h4>Deliverables</h4>
+      <ul>
+        <li><code>design/architecture.md</code></li>
+        <li><code>design/agents/&lt;agent-name&gt;.md</code></li>
+        <li><code>design/integrations.md</code> · <code>data-model.md</code> · <code>process-redesign.md</code></li>
+        <li><code>design/roi-model.md</code> · <code>risks.md</code> · <code>milestones.md</code></li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — exit criteria</h4>
+        <ul>
+          <li>A second engineer could read the design and build it without asking the client questions.</li>
+          <li>Every agent has a human approval point or a documented justification for autonomous operation.</li>
+          <li>ROI model uses real numbers from Phase 1, not industry averages.</li>
+          <li>Every risk has a named mitigation.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">3</div>
+        <div class="title-block">
+          <h3 class="phase-title">Decide</h3>
+          <div class="tag-row">
+            <div>Owner · Human-led</div>
+            <div>Duration · 3–7 days</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Convert the design into a signed agreement at a price that reflects business value, not hours.</div>
+
+      <h4>Activities</h4>
+      <ol>
+        <li><strong>Scope statement</strong> — what is in, what is out, what is "later phase." Explicit on all three.</li>
+        <li><strong>Pricing</strong> — value-based, anchored to the ROI model. Retainer for ongoing operation. Never bill hours for AI work.</li>
+        <li><strong>Proposal</strong> — situation → outcome → solution → scope → timeline → investment → support → next step.</li>
+        <li><strong>Agreement</strong> — deliverables, acceptance criteria, payment schedule, IP, off-boarding, retainer terms.</li>
+        <li><strong>Proposal review call</strong> — walk the decision-maker through it. Address objections live.</li>
+        <li><strong>Close</strong> — signature, deposit, kickoff date booked.</li>
+      </ol>
+
+      <h4>Deliverables</h4>
+      <ul>
+        <li><code>decide/scope.md</code></li>
+        <li><code>decide/proposal.pdf</code> + source <code>.md</code></li>
+        <li><code>decide/agreement.pdf</code> (signed)</li>
+        <li><code>decide/kickoff-plan.md</code></li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — exit criteria</h4>
+        <ul>
+          <li>Agreement is signed.</li>
+          <li>Deposit is received.</li>
+          <li>Kickoff is on the calendar within 14 days.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">4</div>
+        <div class="title-block">
+          <h3 class="phase-title">Deploy</h3>
+          <div class="tag-row">
+            <div>Owner · Build agents + human review</div>
+            <div>Duration · 3–8 weeks</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Build, ship, and prove one workflow live before expanding to the rest. Hand off a system the client can operate.</div>
+
+      <h4>Sub-phases</h4>
+      <ol>
+        <li><strong>Kickoff</strong> — credentials handed off, one comms channel opened, milestone 1 starts.</li>
+        <li><strong>Build</strong> — implement per <code>design/</code>. Daily small commits. Weekly demos.</li>
+        <li><strong>Pilot</strong> — first agent runs against real data with a human reviewing every output. Off-switch live.</li>
+        <li><strong>Harden</strong> — fix edge cases. Add guardrails, rate limits, logging, alerting.</li>
+        <li><strong>Train</strong> — operators trained in their actual workflow, not a slide deck.</li>
+        <li><strong>Handoff</strong> — admin access, documentation, SOPs, support runbook. Retainer kicks in.</li>
+      </ol>
+
+      <h4>Deliverables</h4>
+      <ul>
+        <li>Working system in the client repo</li>
+        <li><code>deploy/runbook.md</code> — how to operate, recover, escalate</li>
+        <li><code>deploy/sop/&lt;workflow&gt;.md</code> — one per automated workflow</li>
+        <li><code>deploy/training/</code> — recorded walkthroughs</li>
+        <li><code>deploy/acceptance.md</code> — every scope item checked, dated, signed</li>
+        <li><code>deploy/handoff.md</code> — admin access map, vendor accounts, credentials owner</li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — exit criteria</h4>
+        <ul>
+          <li>All acceptance criteria from <code>decide/scope.md</code> are checked and dated.</li>
+          <li>The client has run the system end-to-end with no help from us for at least 3 business days.</li>
+          <li>Off-switches and manual fallbacks are documented and tested.</li>
+          <li>Retainer is active.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase-card">
+      <div class="head">
+        <div class="num">5</div>
+        <div class="title-block">
+          <h3 class="phase-title">Drive</h3>
+          <div class="tag-row">
+            <div>Owner · Support agents + human strategist</div>
+            <div>Duration · Ongoing</div>
+          </div>
+        </div>
+      </div>
+      <div class="obj">Operate the system, prove the ROI month over month, and expand into the next workflows.</div>
+
+      <h4>Activities</h4>
+      <ol>
+        <li><strong>Monthly operating review</strong> — pull metrics from <code>success-metrics.md</code>. Hours saved, error rate, throughput, revenue impact.</li>
+        <li><strong>Health monitoring</strong> — uptime, agent error rates, queue depth, approval latency. Alert before the client notices.</li>
+        <li><strong>Continuous improvement</strong> — fix bugs, tune prompts, refine policies, add edge cases discovered in production.</li>
+        <li><strong>Expansion</strong> — work through <code>opportunity-register.md</code>. Each new workflow re-enters at Phase 2.</li>
+        <li><strong>Strategic consulting</strong> — quarterly business review with the decision-maker.</li>
+      </ol>
+
+      <h4>Recurring deliverables</h4>
+      <ul>
+        <li><code>drive/reports/&lt;YYYY-MM&gt;.md</code></li>
+        <li><code>drive/incidents/&lt;YYYY-MM-DD&gt;-&lt;slug&gt;.md</code></li>
+        <li><code>drive/changelog.md</code></li>
+        <li><code>drive/qbr/&lt;YYYY-Qn&gt;.md</code></li>
+      </ul>
+
+      <div class="gate">
+        <h4>Quality gate — ongoing</h4>
+        <ul>
+          <li>Monthly report sent on time.</li>
+          <li>Promised SLAs met or breach acknowledged with remediation.</li>
+          <li>At least one improvement shipped per month.</li>
+          <li>Retainer renewed or expanded each cycle.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>A workflow <em>through the pipeline.</em></h2>
+    <p>A property management company spends 8 hours per week on cleaner scheduling and follow-ups.</p>
+    <table class="example-table">
+      <thead>
+        <tr><th>Phase</th><th>What happens</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="ph">0 Engage</td><td>Intake chatbot surfaces "scheduling pain" + tools (Airtable, WhatsApp, Google Cal). Discovery booked.</td></tr>
+        <tr><td class="ph">1 Diagnose</td><td>Workflow map: trigger = booking confirmed; 11 manual steps; 8 hrs/wk; ~15% miss rate. Success metric: &lt;1 hr/wk human time, &lt;2% miss rate.</td></tr>
+        <tr><td class="ph">2 Design</td><td>Agent: <em>Scheduling Coordinator.</em> Inputs: Airtable booking. Tools: Airtable, WhatsApp Cloud API, Google Calendar. Human checkpoint: same-day reschedules. Off-switch: pause all dispatches.</td></tr>
+        <tr><td class="ph">3 Decide</td><td>Scope: scheduling agent only (quality scoring → Phase 5 candidate). Price: monthly retainer + setup. Signed.</td></tr>
+        <tr><td class="ph">4 Deploy</td><td>Build. 2-week pilot with human approving every dispatch. Hardening (timezones, cleaner unavailability). Train ops manager. Handoff.</td></tr>
+        <tr><td class="ph">5 Drive</td><td>Monthly report: 6.5 hrs/wk saved, 1.2% miss rate. Next workflow from register: supply restock alerts. Re-enters at Phase 2.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <a id="catalog"></a>
+    <h2>The <em>catalog.</em></h2>
+    <p class="lead">The menu of things AI can do for a real business right now. When a client describes their pain, match it to one or more cards below — don't invent a solution from scratch. Each card is a starting recipe that gets refined inside Phase 2 (Design).</p>
+
+    <div class="cat-intro">
+      <span class="how">How to use this</span>
+      <p>Read the client's <code>opportunity-register.md</code>. For each top pain point, pick 1–3 cards below that match. Bundle them into the smallest deployable pilot. The rest go in the expansion backlog for Phase 5.</p>
+    </div>
+
+    <!-- 1. SALES & PIPELINE -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 01</p>
+      <h3 class="cat-title">Sales &amp; pipeline.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Lead intake chatbot</div><p class="desc">Qualifies prospects before they reach a human; saves discovery time.</p></div>
+        <div class="cat-card"><div class="name">Lead enrichment agent</div><p class="desc">Fills missing data on every new lead — company size, stack, decision-maker.</p></div>
+        <div class="cat-card"><div class="name">Lead scoring</div><p class="desc">Auto-ranks inbound by fit and urgency so reps work the right ones first.</p></div>
+        <div class="cat-card"><div class="name">Cold outbound agent</div><p class="desc">Researches a list and writes personalized first touches at scale.</p></div>
+        <div class="cat-card"><div class="name">LinkedIn outreach</div><p class="desc">Connects, messages, follows up — with human approval at every send.</p></div>
+        <div class="cat-card"><div class="name">Inbound reply triage</div><p class="desc">Categorizes every reply and drafts the response for one-click send.</p></div>
+        <div class="cat-card"><div class="name">CRM auto-updater</div><p class="desc">Emails, calls, and meetings become CRM activity without anyone typing.</p></div>
+        <div class="cat-card"><div class="name">Call → CRM notes</div><p class="desc">Transcribes calls and writes structured notes back into the CRM.</p></div>
+        <div class="cat-card"><div class="name">Meeting follow-up agent</div><p class="desc">Sends the recap email and creates next-step tasks within minutes of hang-up.</p></div>
+        <div class="cat-card"><div class="name">Proposal generator</div><p class="desc">Turns the discovery brief into a branded proposal in minutes, not days.</p></div>
+        <div class="cat-card"><div class="name">Quote &amp; pricing agent</div><p class="desc">Assembles custom quotes from a price book + client requirements.</p></div>
+        <div class="cat-card"><div class="name">Stuck-deal nudger</div><p class="desc">Flags deals sitting too long and drafts the unblock message.</p></div>
+        <div class="cat-card"><div class="name">Win/loss synthesizer</div><p class="desc">Reads closed deals and surfaces the patterns leadership keeps missing.</p></div>
+        <div class="cat-card"><div class="name">Referral asker</div><p class="desc">Reaches out to happy clients at the right moment to request intros.</p></div>
+      </div>
+    </div>
+
+    <!-- 2. MARKETING & CONTENT -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 02</p>
+      <h3 class="cat-title">Marketing &amp; content.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Blog writer agent</div><p class="desc">Outlines and drafts long-form articles from your keyword list.</p></div>
+        <div class="cat-card"><div class="name">SEO research agent</div><p class="desc">Gap analysis, topic clusters, and a publishing calendar.</p></div>
+        <div class="cat-card"><div class="name">Social scheduler + writer</div><p class="desc">Drafts and queues posts across every channel from one source brief.</p></div>
+        <div class="cat-card"><div class="name">LinkedIn ghostwriter</div><p class="desc">Turns one founder voice note into a week of native posts.</p></div>
+        <div class="cat-card"><div class="name">Newsletter curator</div><p class="desc">Pulls top items from your sources and drafts the next issue.</p></div>
+        <div class="cat-card"><div class="name">Ad copy lab</div><p class="desc">Generates and tests variants across Meta, Google, and LinkedIn ads.</p></div>
+        <div class="cat-card"><div class="name">Landing page A/B writer</div><p class="desc">Writes targeted page variants tied to specific ad audiences.</p></div>
+        <div class="cat-card"><div class="name">Brand voice checker</div><p class="desc">Flags any content that drifts from your style and tone guidelines.</p></div>
+        <div class="cat-card"><div class="name">Competitor monitor</div><p class="desc">Tracks pricing, launches, hiring, and content for named competitors.</p></div>
+        <div class="cat-card"><div class="name">Review monitor + responder</div><p class="desc">Drafts a reply for every new Google, Yelp, or App Store review.</p></div>
+        <div class="cat-card"><div class="name">Product image cleanup</div><p class="desc">Background removal, lighting fix, ecommerce-ready exports at scale.</p></div>
+        <div class="cat-card"><div class="name">Long-form → clips</div><p class="desc">Turns podcasts and webinars into short, social-ready video cuts.</p></div>
+        <div class="cat-card"><div class="name">Case study factory</div><p class="desc">Interviews the client, drafts the case study, you approve and publish.</p></div>
+        <div class="cat-card"><div class="name">Content repurposer</div><p class="desc">One asset becomes a thread, a carousel, an email, and a blog.</p></div>
+      </div>
+    </div>
+
+    <!-- 3. CUSTOMER SUPPORT -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 03</p>
+      <h3 class="cat-title">Customer support.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Tier-1 support chatbot</div><p class="desc">Handles common questions; clean handoff to a human for anything else.</p></div>
+        <div class="cat-card"><div class="name">Ticket triage</div><p class="desc">Categorizes, prioritizes, and routes every inbound ticket on arrival.</p></div>
+        <div class="cat-card"><div class="name">Suggested replies</div><p class="desc">Agents see a drafted response in their inbox; one click to send.</p></div>
+        <div class="cat-card"><div class="name">Knowledge base auto-author</div><p class="desc">Recurring tickets become permanent KB articles automatically.</p></div>
+        <div class="cat-card"><div class="name">Sentiment escalation</div><p class="desc">Alerts a human the moment a customer turns hostile or hits churn risk.</p></div>
+        <div class="cat-card"><div class="name">Refund / RMA bot</div><p class="desc">Handles routine refund and return requests inside a policy envelope.</p></div>
+        <div class="cat-card"><div class="name">Multi-language support</div><p class="desc">Your team writes in English; customers read it in their language.</p></div>
+        <div class="cat-card"><div class="name">Voice support agent</div><p class="desc">Answers phone calls 24/7 with clean human escalation when needed.</p></div>
+        <div class="cat-card"><div class="name">Onboarding concierge</div><p class="desc">Walks new customers through setup, week 1, and first value moment.</p></div>
+        <div class="cat-card"><div class="name">Customer health watcher</div><p class="desc">Combines usage + billing + support to flag churn before it happens.</p></div>
+      </div>
+    </div>
+
+    <!-- 4. OPERATIONS & ADMIN -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 04</p>
+      <h3 class="cat-title">Operations &amp; admin.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Email triage + drafts</div><p class="desc">Inbox sorted, labelled, and drafts queued for approval every morning.</p></div>
+        <div class="cat-card"><div class="name">Calendar coordinator</div><p class="desc">Reads the request, proposes times, books the meeting once approved.</p></div>
+        <div class="cat-card"><div class="name">Meeting transcriber</div><p class="desc">Every call gets a transcript and action items inside your task system.</p></div>
+        <div class="cat-card"><div class="name">SOP generator</div><p class="desc">Record yourself doing a task once; get a written SOP and a script.</p></div>
+        <div class="cat-card"><div class="name">Document filer</div><p class="desc">Every PDF or contract lands in the right folder, named, and tagged.</p></div>
+        <div class="cat-card"><div class="name">Invoice extraction</div><p class="desc">Pulls line items from received invoices straight into your accounting.</p></div>
+        <div class="cat-card"><div class="name">Receipt processor</div><p class="desc">Photo a receipt — categorized expense filed into your system.</p></div>
+        <div class="cat-card"><div class="name">Contract clause flagger</div><p class="desc">Surfaces unusual terms in every contract sent or received.</p></div>
+        <div class="cat-card"><div class="name">Internal helpdesk bot</div><p class="desc">Answers "where's the form" / "what's the wifi" — forever.</p></div>
+        <div class="cat-card"><div class="name">Vendor &amp; SaaS auditor</div><p class="desc">Tracks renewals, flags overlapping subscriptions, kills zombie tools.</p></div>
+        <div class="cat-card"><div class="name">Task router</div><p class="desc">Slack messages, emails, and forms become tickets in the right tool.</p></div>
+        <div class="cat-card"><div class="name">Voice-to-action capture</div><p class="desc">Record a thought walking home — tasks, drafts, and handoffs created.</p></div>
+      </div>
+    </div>
+
+    <!-- 5. FINANCE & BILLING -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 05</p>
+      <h3 class="cat-title">Finance &amp; billing.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">AR collections agent</div><p class="desc">Chases unpaid invoices on schedule with the right tone per client.</p></div>
+        <div class="cat-card"><div class="name">Cash flow forecaster</div><p class="desc">Daily forward look across AR, AP, and recurring revenue.</p></div>
+        <div class="cat-card"><div class="name">Anomaly &amp; fraud alerts</div><p class="desc">Flags unusual spend, duplicate charges, and suspect transactions.</p></div>
+        <div class="cat-card"><div class="name">Reconciliation agent</div><p class="desc">Matches Stripe ↔ accounting ↔ bank automatically, surfaces breaks.</p></div>
+        <div class="cat-card"><div class="name">Pricing optimizer</div><p class="desc">Recommends price changes from win/loss and competitor data.</p></div>
+        <div class="cat-card"><div class="name">Budget variance alerts</div><p class="desc">Tells you the moment a department blows past its monthly envelope.</p></div>
+        <div class="cat-card"><div class="name">Subscription auditor</div><p class="desc">Finds zombie SaaS subscriptions across the whole business.</p></div>
+        <div class="cat-card"><div class="name">Investor / lender updater</div><p class="desc">Drafts the monthly investor update from your operating data.</p></div>
+      </div>
+    </div>
+
+    <!-- 6. HR & PEOPLE -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 06</p>
+      <h3 class="cat-title">HR &amp; people.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Resume screener</div><p class="desc">Ranks applicants against the actual job spec, with reasoning.</p></div>
+        <div class="cat-card"><div class="name">Interview scheduler</div><p class="desc">Handles the back-and-forth across candidates and panels.</p></div>
+        <div class="cat-card"><div class="name">Onboarding agent</div><p class="desc">New hires Q&amp;A their way through week 1 without bothering anyone.</p></div>
+        <div class="cat-card"><div class="name">Employee Q&amp;A bot</div><p class="desc">Policies, benefits, PTO balance, "how do I do X" — answered in Slack.</p></div>
+        <div class="cat-card"><div class="name">Performance review helper</div><p class="desc">Drafts reviews from real evidence: PRs, tickets, deals, support cases.</p></div>
+        <div class="cat-card"><div class="name">PTO request handler</div><p class="desc">Checks coverage, routes to manager, updates calendars and HRIS.</p></div>
+        <div class="cat-card"><div class="name">Exit interview synthesizer</div><p class="desc">Finds patterns across departures leadership keeps missing.</p></div>
+        <div class="cat-card"><div class="name">Recruiter outreach agent</div><p class="desc">Sources passive candidates and personalizes the first message.</p></div>
+      </div>
+    </div>
+
+    <!-- 7. KNOWLEDGE & INTERNAL AI -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 07</p>
+      <h3 class="cat-title">Knowledge &amp; internal AI.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Company brain</div><p class="desc">Ask anything about the business; answers cite the source doc.</p></div>
+        <div class="cat-card"><div class="name">Drive / Notion Q&amp;A</div><p class="desc">Search and synthesize across your entire knowledge base in one query.</p></div>
+        <div class="cat-card"><div class="name">Onboarding wiki auto-build</div><p class="desc">Generates the internal wiki from existing scattered documents.</p></div>
+        <div class="cat-card"><div class="name">Meeting archive</div><p class="desc">Every call becomes a searchable, queryable Q&amp;A surface.</p></div>
+        <div class="cat-card"><div class="name">Universal search</div><p class="desc">Slack + email + docs + tickets, unified into one search bar.</p></div>
+        <div class="cat-card"><div class="name">Policy &amp; compliance bot</div><p class="desc">Answers "is this allowed under our policy / GDPR / HIPAA?" with cites.</p></div>
+        <div class="cat-card"><div class="name">Decision log</div><p class="desc">Captures every decision made in meetings; searchable forever.</p></div>
+        <div class="cat-card"><div class="name">Project memory agent</div><p class="desc">New project member catches up in 10 minutes instead of 2 weeks.</p></div>
+      </div>
+    </div>
+
+    <!-- 8. DATA & REPORTING -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 08</p>
+      <h3 class="cat-title">Data &amp; reporting.</h3>
+      <div class="cat-grid">
+        <div class="cat-card"><div class="name">Daily business digest</div><p class="desc">A one-page summary of yesterday's metrics in your inbox each morning.</p></div>
+        <div class="cat-card"><div class="name">Anomaly watchdog</div><p class="desc">Alerts when any KPI moves outside its normal range.</p></div>
+        <div class="cat-card"><div class="name">Natural-language analytics</div><p class="desc">"Show me revenue by source this quarter" → an actual chart.</p></div>
+        <div class="cat-card"><div class="name">Custom dashboard builder</div><p class="desc">Describe what you want to see, get a live dashboard you can share.</p></div>
+        <div class="cat-card"><div class="name">Weekly board pack</div><p class="desc">Auto-drafted from operating data; founder reviews and sends.</p></div>
+        <div class="cat-card"><div class="name">Cohort &amp; retention analyzer</div><p class="desc">Surfaces which customer cohorts stick and which leak, with reasons.</p></div>
+        <div class="cat-card"><div class="name">Funnel diagnostic</div><p class="desc">Tells you which step in your funnel is bleeding, and the likely cause.</p></div>
+        <div class="cat-card"><div class="name">Forecast assistant</div><p class="desc">Rolling revenue, headcount, and runway forecasts updated continuously.</p></div>
+      </div>
+    </div>
+
+    <!-- 9. INDUSTRY PLAYBOOKS -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 09</p>
+      <h3 class="cat-title">Industry playbooks.</h3>
+      <p>Pre-built recipes for common verticals. Each is a bundle of cards from above wired together as one workflow.</p>
+      <div class="recipe-list">
+        <div class="recipe-row">
+          <div class="industry">Property management</div>
+          <div class="recipe"><span class="step">Booking confirmed</span> → cleaner dispatch → guest welcome comms → supply restock alerts → review chase after checkout.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">E-commerce</div>
+          <div class="recipe"><span class="step">Product copy + image cleanup</span> → abandoned-cart recovery → review monitor &amp; reply → inventory &amp; restock forecasting.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Agencies</div>
+          <div class="recipe"><span class="step">Client reporting</span> → scope-creep alerts → timesheet drafting → retainer review prep → win/loss synthesis.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Real estate</div>
+          <div class="recipe"><span class="step">Lead nurture sequences</span> → listing copy + photo cleanup → showing coordination → document prep → closing reminders.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Restaurants</div>
+          <div class="recipe"><span class="step">Reservation handling</span> → inventory forecasting → review reply → menu pricing tests → daily ops digest.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Healthcare clinics</div>
+          <div class="recipe"><span class="step">Appointment reminders</span> → intake forms → insurance verification → no-show recovery → after-visit summary.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Coaches &amp; consultants</div>
+          <div class="recipe"><span class="step">Session notes</span> → content repurposing → scheduling agent → client portal Q&amp;A → renewal reminders.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Construction</div>
+          <div class="recipe"><span class="step">Bid drafting</span> → change-order tracking → daily photo log → subcontractor coordination → progress reports to owner.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Law firms</div>
+          <div class="recipe"><span class="step">Intake screening</span> → conflict check → clause extraction → billable-hour categorization → client status updates.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Education</div>
+          <div class="recipe"><span class="step">Grading assistance</span> → lesson planning → parent comms → tutoring agent → progress reports.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Manufacturing</div>
+          <div class="recipe"><span class="step">RFQ response</span> → quote-to-order automation → inventory forecasting → supplier coordination → shipment tracking.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Nonprofits</div>
+          <div class="recipe"><span class="step">Donor outreach</span> → grant drafting → impact report generation → volunteer scheduling → year-end giving comms.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Insurance brokers</div>
+          <div class="recipe"><span class="step">Quote comparison</span> → policy renewal reminders → claims status updates → underwriting prep → client review prep.</div>
+        </div>
+        <div class="recipe-row">
+          <div class="industry">Logistics &amp; freight</div>
+          <div class="recipe"><span class="step">Load matching</span> → ETA updates to customers → invoice extraction → exception alerts → driver Q&amp;A bot.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 10. CROSS-CUTTING PATTERNS -->
+    <div class="cat-group">
+      <p class="cat-sub">Category 10</p>
+      <h3 class="cat-title">Cross-cutting patterns.</h3>
+      <p>The meta-moves that show up in almost every engagement, regardless of industry. Recognize these and you'll spot opportunities faster.</p>
+      <div class="pattern-grid">
+        <div class="pattern-card">
+          <div class="qname">"X to CRM"</div>
+          <p class="qdesc">Any unstructured input — email, call, voice note, form — becomes structured data in the right system.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Inbox zero by 9am"</div>
+          <p class="qdesc">Overnight triage classifies and drafts every reply; founder approves the queue with coffee in hand.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Voice to action"</div>
+          <p class="qdesc">Speak a thought into your phone, get a task, a draft, or a handoff created in the right tool.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Replace the spreadsheet"</div>
+          <p class="qdesc">A real internal app on top of the data, with role-based access and an audit trail.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Daily digest"</div>
+          <p class="qdesc">A morning email that summarizes what would have required logging into six tools.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Approve in Slack"</div>
+          <p class="qdesc">Agents pause for human approval inside the chat tool the team already lives in.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Off-switch dashboard"</div>
+          <p class="qdesc">One place to pause every agent the moment something looks wrong.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Searchable archive"</div>
+          <p class="qdesc">A pile of PDFs, recordings, and emails becomes a queryable Q&amp;A surface.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Always-on watcher"</div>
+          <p class="qdesc">Agent monitors something — a competitor, a regulation, a metric — and pings you only when it matters.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Lead-to-cash thread"</div>
+          <p class="qdesc">A single thread from first message through signed contract through invoice paid.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Human in the loop, once"</div>
+          <p class="qdesc">First 100 runs need approval; after that the agent graduates to autonomous with sampling.</p>
+        </div>
+        <div class="pattern-card">
+          <div class="qname">"Two-way sync, one truth"</div>
+          <p class="qdesc">Pick one system of record per entity. Everything else syncs from it, not to it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="anti">
+      <h2>Anti-patterns — <em>never</em> do these.</h2>
+      <ul>
+        <li>Promise an AI agent before Phase 2 is complete.</li>
+        <li>Quote a price before the ROI model exists.</li>
+        <li>Build before scope is signed.</li>
+        <li>Go live without a pilot.</li>
+        <li>Hand off without operators trained.</li>
+        <li>Ship to production without a changelog and an off-switch.</li>
+        <li>Let a phase exit with an open quality-gate item.</li>
+        <li>Treat the intake chatbot's output as verified truth.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>Why this <em>works.</em></h2>
+    <ul>
+      <li>It forces the order AI projects actually need: <strong>understand → design → prove small → scale.</strong></li>
+      <li>It separates <strong>decisions (human)</strong> from <strong>execution (agent)</strong> at every gate.</li>
+      <li>It produces a paper trail that becomes the system's long-term memory.</li>
+      <li>It builds a retainer-shaped relationship by design, not as an afterthought.</li>
+      <li>It is the same six phases for a 2-person business or a 200-person business — only depth changes.</li>
+    </ul>
+  </section>
+
+  <footer class="doc-foot">
+    <div class="row">
+      <div>AI Propulsion · The AI Implementation Pipeline · v1.0</div>
+      <div><a href="index.html">← back to home</a></div>
+    </div>
+  </footer>
+
+</div>
+
+</body>
+</html>

@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Log in — AI Propulsion.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body { background: var(--paper); }
+  .portal-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 24px;
+  }
+  .portal-card { width: 100%; max-width: 380px; }
+
+  .portal-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 48px;
+    text-decoration: none;
+    padding: 4px 0;
+  }
+  .portal-brand svg { display: block; }
+  .portal-brand .wordmark {
+    font-size: 30px;
+    letter-spacing: -0.018em;
+  }
+  .demo-badge {
+    display: inline-block;
+    padding: 4px 9px;
+    background: var(--blue-whisper);
+    color: var(--blue-deep);
+    font-family: var(--font-mono);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    border-radius: 3px;
+    margin-left: 6px;
+    vertical-align: 6px;
+  }
+  .demo-note {
+    margin-top: 18px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    color: rgba(20, 24, 31, 0.45);
+    line-height: 1.5;
+  }
+
+  .portal-card h1 {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    color: var(--ink);
+    margin: 0 0 32px;
+  }
+
+  .field {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .field label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .field input {
+    background: #ffffff;
+    border: 1px solid var(--rule);
+    border-radius: 6px;
+    padding: 12px 14px;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    color: var(--ink);
+    outline: none;
+    transition: all 0.15s ease;
+  }
+  .field input::placeholder { color: rgba(20, 24, 31, 0.4); }
+  .field input:focus {
+    border-color: var(--blue-royal);
+    box-shadow: 0 0 0 3px rgba(14, 114, 217, 0.12);
+  }
+
+  .row {
+    display: flex;
+    justify-content: flex-end;
+    margin: 4px 0 18px;
+  }
+  .row a {
+    font-size: 12.5px;
+    color: var(--ink-2);
+    text-decoration: none;
+  }
+  .row a:hover { color: var(--blue-royal); }
+
+  .submit {
+    width: 100%;
+    background: var(--ink);
+    color: var(--paper);
+    border: 0;
+    padding: 13px 18px;
+    border-radius: 6px;
+    font-family: var(--font-sans);
+    font-size: 14.5px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+  .submit:hover { background: var(--ink-2); }
+
+  .alt-link {
+    margin-top: 28px;
+    text-align: center;
+    font-size: 13.5px;
+    color: var(--ink-2);
+  }
+  .alt-link a {
+    color: var(--blue-royal);
+    font-weight: 500;
+    text-decoration: none;
+  }
+  .alt-link a:hover { color: var(--blue-deep); }
+
+  .dev-tucked {
+    margin-top: 48px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .dev-tucked a {
+    color: rgba(20, 24, 31, 0.4);
+    text-decoration: none;
+    border-bottom: 1px dotted rgba(20, 24, 31, 0.2);
+    padding-bottom: 1px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+  }
+  .dev-tucked a:hover { color: var(--ink); border-bottom-color: var(--ink); }
+</style>
+</head>
+<body>
+
+<div class="portal-shell">
+  <div class="portal-card">
+
+    <a href="/" class="portal-brand" aria-label="AI Propulsion home">
+      <svg viewBox="-50 -50 100 100" width="44" height="44" xmlns="http://www.w3.org/2000/svg" style="overflow:visible">
+        <g transform="rotate(-10)">
+          <g stroke="#0E72D9" stroke-width="3.2" stroke-linecap="round" fill="none">
+            <path d="M 0 -5 Q 5 -20 0 -36"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(120)"/>
+            <path d="M 0 -5 Q 5 -20 0 -36" transform="rotate(240)"/>
+          </g>
+          <g fill="#0E72D9">
+            <circle cx="0" cy="-38" r="6"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(120)"/>
+            <circle cx="0" cy="-38" r="6" transform="rotate(240)"/>
+            <circle r="4.5"/>
+          </g>
+        </g>
+      </svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span>
+      <span class="demo-badge">Demo</span>
+    </a>
+
+    <h1>Log in</h1>
+
+    <form onsubmit="event.preventDefault(); window.location.href='/chat';">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" name="email" type="email" required placeholder="you@company.com" autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" required placeholder="••••••••" autocomplete="current-password" />
+      </div>
+      <div class="row">
+        <a href="#">Forgot password?</a>
+      </div>
+      <button type="submit" class="submit">Log in</button>
+    </form>
+
+    <p class="alt-link">New here? <a href="/sign-in.html">Create your account &rsaquo;</a></p>
+
+    <p class="dev-tucked"><a href="/sign-in/developer.html">Developer access &rsaquo;</a></p>
+
+    <p class="demo-note">This is a live demo — credentials aren't checked yet. App and site still in development.</p>
+  </div>
+</div>
+
+</body>
+</html>
