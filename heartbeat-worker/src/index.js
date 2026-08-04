@@ -16,6 +16,18 @@ function clean(value, max = 240) {
   return String(value ?? "").trim().slice(0, max);
 }
 
+function count(value) {
+  if (value === "" || value === null || value === undefined) return -1;
+  const number = Number(value);
+  return Number.isFinite(number) && number >= 0 ? Math.round(number) : -1;
+}
+
+function percent(value, status) {
+  if (value === "" || value === null || value === undefined) return status === "completed" ? 100 : -1;
+  const number = Number(value);
+  return Number.isFinite(number) ? Math.max(0, Math.min(100, Math.round(number))) : -1;
+}
+
 function validHeartbeat(input) {
   const id = clean(input.id, 64).toLowerCase();
   if (!/^[a-z0-9][a-z0-9-]{1,63}$/.test(id)) return null;
@@ -24,6 +36,8 @@ function validHeartbeat(input) {
   const name = clean(input.name, 80);
   const task = clean(input.task, 500);
   if (!name || !task) return null;
+  const completedWork = clean(input.completedWork, 1500);
+  const remainingWork = clean(input.remainingWork, 1000);
   return {
     id,
     name,
@@ -33,6 +47,13 @@ function validHeartbeat(input) {
     task,
     detail: clean(input.detail, 1000),
     public_prompt: clean(input.publicPrompt, 800),
+    completed_work: completedWork || (status === "completed" ? task : ""),
+    remaining_work: remainingWork || (status === "completed" ? "Nothing remains for this reported task." : ""),
+    progress_percent: percent(input.progressPercent, status),
+    tokens_used: count(input.tokensUsed),
+    tools_used: clean(input.toolsUsed, 1000),
+    skills_used: clean(input.skillsUsed, 1000),
+    blockers: clean(input.blockers, 1000),
     source: clean(input.source, 240),
     status
   };
@@ -65,6 +86,13 @@ export class AgentWorkspace extends DurableObject {
         task TEXT NOT NULL,
         detail TEXT NOT NULL,
         public_prompt TEXT NOT NULL DEFAULT '',
+        completed_work TEXT NOT NULL DEFAULT '',
+        remaining_work TEXT NOT NULL DEFAULT '',
+        progress_percent INTEGER NOT NULL DEFAULT -1,
+        tokens_used INTEGER NOT NULL DEFAULT -1,
+        tools_used TEXT NOT NULL DEFAULT '',
+        skills_used TEXT NOT NULL DEFAULT '',
+        blockers TEXT NOT NULL DEFAULT '',
         source TEXT NOT NULL,
         status TEXT NOT NULL,
         started_at INTEGER NOT NULL,
@@ -78,36 +106,62 @@ export class AgentWorkspace extends DurableObject {
         task TEXT NOT NULL,
         detail TEXT NOT NULL,
         public_prompt TEXT NOT NULL DEFAULT '',
+        completed_work TEXT NOT NULL DEFAULT '',
+        remaining_work TEXT NOT NULL DEFAULT '',
+        progress_percent INTEGER NOT NULL DEFAULT -1,
+        tokens_used INTEGER NOT NULL DEFAULT -1,
+        tools_used TEXT NOT NULL DEFAULT '',
+        skills_used TEXT NOT NULL DEFAULT '',
+        blockers TEXT NOT NULL DEFAULT '',
         happened_at INTEGER NOT NULL
       );
       CREATE INDEX IF NOT EXISTS activity_recent ON activity(happened_at DESC);
     `);
+    const additions = [
+      ["public_prompt", "TEXT NOT NULL DEFAULT ''"],
+      ["completed_work", "TEXT NOT NULL DEFAULT ''"],
+      ["remaining_work", "TEXT NOT NULL DEFAULT ''"],
+      ["progress_percent", "INTEGER NOT NULL DEFAULT -1"],
+      ["tokens_used", "INTEGER NOT NULL DEFAULT -1"],
+      ["tools_used", "TEXT NOT NULL DEFAULT ''"],
+      ["skills_used", "TEXT NOT NULL DEFAULT ''"],
+      ["blockers", "TEXT NOT NULL DEFAULT ''"]
+    ];
     for (const table of ["agents", "activity"]) {
-      try { this.ctx.storage.sql.exec(`ALTER TABLE ${table} ADD COLUMN public_prompt TEXT NOT NULL DEFAULT ''`); } catch {}
+      for (const [column, definition] of additions) {
+        try { this.ctx.storage.sql.exec(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`); } catch {}
+      }
     }
   }
 
   record(agent) {
     const now = Date.now();
     const previous = this.ctx.storage.sql.exec(
-      "SELECT status, task, public_prompt, started_at FROM agents WHERE id = ?",
+      "SELECT status, task, public_prompt, progress_percent, started_at FROM agents WHERE id = ?",
       agent.id
     ).toArray()[0];
     const startedAt = previous && previous.task === agent.task ? previous.started_at : now;
     this.ctx.storage.sql.exec(`
-      INSERT INTO agents (id, name, kind, purpose, project, task, detail, public_prompt, source, status, started_at, last_seen)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO agents (id, name, kind, purpose, project, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, source, status, started_at, last_seen)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name=excluded.name, kind=excluded.kind, purpose=excluded.purpose,
         project=excluded.project, task=excluded.task, detail=excluded.detail, public_prompt=excluded.public_prompt,
+        completed_work=excluded.completed_work, remaining_work=excluded.remaining_work,
+        progress_percent=excluded.progress_percent, tokens_used=excluded.tokens_used,
+        tools_used=excluded.tools_used, skills_used=excluded.skills_used, blockers=excluded.blockers,
         source=excluded.source, status=excluded.status,
         started_at=excluded.started_at, last_seen=excluded.last_seen
     `, agent.id, agent.name, agent.kind, agent.purpose, agent.project, agent.task,
-      agent.detail, agent.public_prompt, agent.source, agent.status, startedAt, now);
-    if (!previous || previous.status !== agent.status || previous.task !== agent.task || previous.public_prompt !== agent.public_prompt) {
+      agent.detail, agent.public_prompt, agent.completed_work, agent.remaining_work,
+      agent.progress_percent, agent.tokens_used, agent.tools_used, agent.skills_used,
+      agent.blockers, agent.source, agent.status, startedAt, now);
+    if (!previous || previous.status !== agent.status || previous.task !== agent.task || previous.public_prompt !== agent.public_prompt || previous.progress_percent !== agent.progress_percent) {
       this.ctx.storage.sql.exec(
-        "INSERT INTO activity (agent_id, agent_name, status, task, detail, public_prompt, happened_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-        agent.id, agent.name, agent.status, agent.task, agent.detail, agent.public_prompt, now
+        "INSERT INTO activity (agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, happened_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        agent.id, agent.name, agent.status, agent.task, agent.detail, agent.public_prompt,
+        agent.completed_work, agent.remaining_work, agent.progress_percent, agent.tokens_used,
+        agent.tools_used, agent.skills_used, agent.blockers, now
       );
     }
     this.ctx.storage.sql.exec(
@@ -130,7 +184,7 @@ export class AgentWorkspace extends DurableObject {
       last_seen: undefined
     }));
     const activity = this.ctx.storage.sql.exec(
-      "SELECT agent_id, agent_name, status, task, detail, public_prompt, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
+      "SELECT agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
     ).toArray().map(event => ({
       id: event.agent_id,
       agent: event.agent_name,
@@ -138,6 +192,13 @@ export class AgentWorkspace extends DurableObject {
       task: event.task,
       detail: event.detail,
       publicPrompt: event.public_prompt,
+      completedWork: event.completed_work,
+      remainingWork: event.remaining_work,
+      progressPercent: event.progress_percent,
+      tokensUsed: event.tokens_used,
+      toolsUsed: event.tools_used,
+      skillsUsed: event.skills_used,
+      blockers: event.blockers,
       at: new Date(event.happened_at).toISOString()
     }));
     return { observedAt: new Date(now).toISOString(), agents, activity };
