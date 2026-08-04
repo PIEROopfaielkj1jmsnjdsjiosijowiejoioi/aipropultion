@@ -32,6 +32,7 @@ function validHeartbeat(input) {
     project: clean(input.project, 120),
     task,
     detail: clean(input.detail, 1000),
+    public_prompt: clean(input.publicPrompt, 800),
     source: clean(input.source, 240),
     status
   };
@@ -63,6 +64,7 @@ export class AgentWorkspace extends DurableObject {
         project TEXT NOT NULL,
         task TEXT NOT NULL,
         detail TEXT NOT NULL,
+        public_prompt TEXT NOT NULL DEFAULT '',
         source TEXT NOT NULL,
         status TEXT NOT NULL,
         started_at INTEGER NOT NULL,
@@ -75,33 +77,37 @@ export class AgentWorkspace extends DurableObject {
         status TEXT NOT NULL,
         task TEXT NOT NULL,
         detail TEXT NOT NULL,
+        public_prompt TEXT NOT NULL DEFAULT '',
         happened_at INTEGER NOT NULL
       );
       CREATE INDEX IF NOT EXISTS activity_recent ON activity(happened_at DESC);
     `);
+    for (const table of ["agents", "activity"]) {
+      try { this.ctx.storage.sql.exec(`ALTER TABLE ${table} ADD COLUMN public_prompt TEXT NOT NULL DEFAULT ''`); } catch {}
+    }
   }
 
   record(agent) {
     const now = Date.now();
     const previous = this.ctx.storage.sql.exec(
-      "SELECT status, task, started_at FROM agents WHERE id = ?",
+      "SELECT status, task, public_prompt, started_at FROM agents WHERE id = ?",
       agent.id
     ).toArray()[0];
     const startedAt = previous && previous.task === agent.task ? previous.started_at : now;
     this.ctx.storage.sql.exec(`
-      INSERT INTO agents (id, name, kind, purpose, project, task, detail, source, status, started_at, last_seen)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO agents (id, name, kind, purpose, project, task, detail, public_prompt, source, status, started_at, last_seen)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name=excluded.name, kind=excluded.kind, purpose=excluded.purpose,
-        project=excluded.project, task=excluded.task, detail=excluded.detail,
+        project=excluded.project, task=excluded.task, detail=excluded.detail, public_prompt=excluded.public_prompt,
         source=excluded.source, status=excluded.status,
         started_at=excluded.started_at, last_seen=excluded.last_seen
     `, agent.id, agent.name, agent.kind, agent.purpose, agent.project, agent.task,
-      agent.detail, agent.source, agent.status, startedAt, now);
-    if (!previous || previous.status !== agent.status || previous.task !== agent.task) {
+      agent.detail, agent.public_prompt, agent.source, agent.status, startedAt, now);
+    if (!previous || previous.status !== agent.status || previous.task !== agent.task || previous.public_prompt !== agent.public_prompt) {
       this.ctx.storage.sql.exec(
-        "INSERT INTO activity (agent_id, agent_name, status, task, detail, happened_at) VALUES (?, ?, ?, ?, ?, ?)",
-        agent.id, agent.name, agent.status, agent.task, agent.detail, now
+        "INSERT INTO activity (agent_id, agent_name, status, task, detail, public_prompt, happened_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+        agent.id, agent.name, agent.status, agent.task, agent.detail, agent.public_prompt, now
       );
     }
     this.ctx.storage.sql.exec(
@@ -124,13 +130,14 @@ export class AgentWorkspace extends DurableObject {
       last_seen: undefined
     }));
     const activity = this.ctx.storage.sql.exec(
-      "SELECT agent_id, agent_name, status, task, detail, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
+      "SELECT agent_id, agent_name, status, task, detail, public_prompt, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
     ).toArray().map(event => ({
       id: event.agent_id,
       agent: event.agent_name,
       status: event.status,
       task: event.task,
       detail: event.detail,
+      publicPrompt: event.public_prompt,
       at: new Date(event.happened_at).toISOString()
     }));
     return { observedAt: new Date(now).toISOString(), agents, activity };
