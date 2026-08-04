@@ -51,8 +51,12 @@ function validHeartbeat(input) {
     remaining_work: remainingWork || (status === "completed" ? "Nothing remains for this reported task." : ""),
     progress_percent: percent(input.progressPercent, status),
     tokens_used: count(input.tokensUsed),
+    public_tools_available: clean(input.publicToolsAvailable, 1200),
     tools_used: clean(input.toolsUsed, 1000),
     skills_used: clean(input.skillsUsed, 1000),
+    public_context_summary: clean(input.publicContextSummary, 1800),
+    public_output_summary: clean(input.publicOutputSummary, 1800),
+    public_verification_summary: clean(input.publicVerificationSummary, 1500),
     blockers: clean(input.blockers, 1000),
     source: clean(input.source, 240),
     status
@@ -90,8 +94,12 @@ export class AgentWorkspace extends DurableObject {
         remaining_work TEXT NOT NULL DEFAULT '',
         progress_percent INTEGER NOT NULL DEFAULT -1,
         tokens_used INTEGER NOT NULL DEFAULT -1,
+        public_tools_available TEXT NOT NULL DEFAULT '',
         tools_used TEXT NOT NULL DEFAULT '',
         skills_used TEXT NOT NULL DEFAULT '',
+        public_context_summary TEXT NOT NULL DEFAULT '',
+        public_output_summary TEXT NOT NULL DEFAULT '',
+        public_verification_summary TEXT NOT NULL DEFAULT '',
         blockers TEXT NOT NULL DEFAULT '',
         source TEXT NOT NULL,
         status TEXT NOT NULL,
@@ -110,8 +118,12 @@ export class AgentWorkspace extends DurableObject {
         remaining_work TEXT NOT NULL DEFAULT '',
         progress_percent INTEGER NOT NULL DEFAULT -1,
         tokens_used INTEGER NOT NULL DEFAULT -1,
+        public_tools_available TEXT NOT NULL DEFAULT '',
         tools_used TEXT NOT NULL DEFAULT '',
         skills_used TEXT NOT NULL DEFAULT '',
+        public_context_summary TEXT NOT NULL DEFAULT '',
+        public_output_summary TEXT NOT NULL DEFAULT '',
+        public_verification_summary TEXT NOT NULL DEFAULT '',
         blockers TEXT NOT NULL DEFAULT '',
         happened_at INTEGER NOT NULL
       );
@@ -123,8 +135,12 @@ export class AgentWorkspace extends DurableObject {
       ["remaining_work", "TEXT NOT NULL DEFAULT ''"],
       ["progress_percent", "INTEGER NOT NULL DEFAULT -1"],
       ["tokens_used", "INTEGER NOT NULL DEFAULT -1"],
+      ["public_tools_available", "TEXT NOT NULL DEFAULT ''"],
       ["tools_used", "TEXT NOT NULL DEFAULT ''"],
       ["skills_used", "TEXT NOT NULL DEFAULT ''"],
+      ["public_context_summary", "TEXT NOT NULL DEFAULT ''"],
+      ["public_output_summary", "TEXT NOT NULL DEFAULT ''"],
+      ["public_verification_summary", "TEXT NOT NULL DEFAULT ''"],
       ["blockers", "TEXT NOT NULL DEFAULT ''"]
     ];
     for (const table of ["agents", "activity"]) {
@@ -142,26 +158,32 @@ export class AgentWorkspace extends DurableObject {
     ).toArray()[0];
     const startedAt = previous && previous.task === agent.task ? previous.started_at : now;
     this.ctx.storage.sql.exec(`
-      INSERT INTO agents (id, name, kind, purpose, project, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, source, status, started_at, last_seen)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO agents (id, name, kind, purpose, project, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, public_tools_available, tools_used, skills_used, public_context_summary, public_output_summary, public_verification_summary, blockers, source, status, started_at, last_seen)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       ON CONFLICT(id) DO UPDATE SET
         name=excluded.name, kind=excluded.kind, purpose=excluded.purpose,
         project=excluded.project, task=excluded.task, detail=excluded.detail, public_prompt=excluded.public_prompt,
         completed_work=excluded.completed_work, remaining_work=excluded.remaining_work,
         progress_percent=excluded.progress_percent, tokens_used=excluded.tokens_used,
-        tools_used=excluded.tools_used, skills_used=excluded.skills_used, blockers=excluded.blockers,
+        public_tools_available=excluded.public_tools_available, tools_used=excluded.tools_used,
+        skills_used=excluded.skills_used, public_context_summary=excluded.public_context_summary,
+        public_output_summary=excluded.public_output_summary,
+        public_verification_summary=excluded.public_verification_summary, blockers=excluded.blockers,
         source=excluded.source, status=excluded.status,
         started_at=excluded.started_at, last_seen=excluded.last_seen
     `, agent.id, agent.name, agent.kind, agent.purpose, agent.project, agent.task,
       agent.detail, agent.public_prompt, agent.completed_work, agent.remaining_work,
-      agent.progress_percent, agent.tokens_used, agent.tools_used, agent.skills_used,
-      agent.blockers, agent.source, agent.status, startedAt, now);
+      agent.progress_percent, agent.tokens_used, agent.public_tools_available, agent.tools_used,
+      agent.skills_used, agent.public_context_summary, agent.public_output_summary,
+      agent.public_verification_summary, agent.blockers, agent.source, agent.status, startedAt, now);
     if (!previous || previous.status !== agent.status || previous.task !== agent.task || previous.public_prompt !== agent.public_prompt || previous.progress_percent !== agent.progress_percent) {
       this.ctx.storage.sql.exec(
-        "INSERT INTO activity (agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, happened_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO activity (agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, public_tools_available, tools_used, skills_used, public_context_summary, public_output_summary, public_verification_summary, blockers, happened_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
         agent.id, agent.name, agent.status, agent.task, agent.detail, agent.public_prompt,
         agent.completed_work, agent.remaining_work, agent.progress_percent, agent.tokens_used,
-        agent.tools_used, agent.skills_used, agent.blockers, now
+        agent.public_tools_available, agent.tools_used, agent.skills_used,
+        agent.public_context_summary, agent.public_output_summary, agent.public_verification_summary,
+        agent.blockers, now
       );
     }
     this.ctx.storage.sql.exec(
@@ -184,7 +206,7 @@ export class AgentWorkspace extends DurableObject {
       last_seen: undefined
     }));
     const activity = this.ctx.storage.sql.exec(
-      "SELECT agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, tools_used, skills_used, blockers, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
+      "SELECT agent_id, agent_name, status, task, detail, public_prompt, completed_work, remaining_work, progress_percent, tokens_used, public_tools_available, tools_used, skills_used, public_context_summary, public_output_summary, public_verification_summary, blockers, happened_at FROM activity ORDER BY happened_at DESC LIMIT 50"
     ).toArray().map(event => ({
       id: event.agent_id,
       agent: event.agent_name,
@@ -196,8 +218,12 @@ export class AgentWorkspace extends DurableObject {
       remainingWork: event.remaining_work,
       progressPercent: event.progress_percent,
       tokensUsed: event.tokens_used,
+      publicToolsAvailable: event.public_tools_available,
       toolsUsed: event.tools_used,
       skillsUsed: event.skills_used,
+      publicContextSummary: event.public_context_summary,
+      publicOutputSummary: event.public_output_summary,
+      publicVerificationSummary: event.public_verification_summary,
       blockers: event.blockers,
       at: new Date(event.happened_at).toISOString()
     }));
