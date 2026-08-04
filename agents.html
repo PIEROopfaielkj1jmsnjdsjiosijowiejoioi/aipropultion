@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agents · Studio — AI Propulsion.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+  body{background:var(--paper)}.app{min-height:100vh;display:grid;grid-template-columns:248px minmax(0,1fr)}
+  .sidebar{background:var(--ink);color:var(--paper);padding:22px 16px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow-y:auto}.sidebar .brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:28px;padding:6px 10px;text-decoration:none}.sidebar .brand .wordmark{font-size:17px;color:var(--paper)}.sidebar .brand .dot{color:var(--blue-sky)}
+  .demo-badge-dark{padding:3px 7px;background:rgba(101,160,220,.16);border:1px solid rgba(101,160,220,.32);color:var(--blue-sky);font:600 9px var(--font-mono);letter-spacing:.22em;text-transform:uppercase;border-radius:3px}.nav-label{font:500 9px var(--font-mono);letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.32);padding:16px 12px 8px}.nav-item{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 12px;border-radius:5px;color:rgba(255,255,255,.72);text-decoration:none;font-size:13.5px;font-weight:500}.nav-item:hover{background:rgba(255,255,255,.04);color:var(--paper)}.nav-item.active{background:rgba(101,160,220,.10);color:var(--paper);border-left:2px solid var(--blue-sky);padding-left:10px}.sidebar-foot{margin-top:auto;padding-top:16px;border-top:1px solid var(--rule-light);font:400 10px/1.6 var(--font-mono);color:rgba(255,255,255,.45)}
+  .main{padding:32px 40px 80px;min-width:0}.topline{display:flex;justify-content:space-between;align-items:center;gap:18px}.crumbs,.runtime{font:400 10px var(--font-mono);letter-spacing:.13em;text-transform:uppercase;color:rgba(20,24,31,.5)}.runtime i{display:inline-block;width:7px;height:7px;border-radius:50%;background:#c57a20;margin-right:7px;box-shadow:0 0 0 3px rgba(197,122,32,.14)}
+  .page-h{display:flex;justify-content:space-between;align-items:end;gap:30px;margin:8px 0 28px;padding-bottom:24px;border-bottom:1px solid var(--ink)}.page-h h1{font:400 italic clamp(40px,5vw,64px)/.95 var(--font-display);letter-spacing:-.025em;margin:0}.page-h h1 em{color:var(--blue-royal)}.page-h p{max-width:410px;text-align:right;margin:0;color:var(--ink-2);font-size:13px}
+  .metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:34px}.metric{background:#fff;border:1px solid var(--rule);border-radius:6px;padding:18px}.metric span{font:500 9px var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:rgba(20,24,31,.52)}.metric strong{display:block;font:400 italic 38px var(--font-display);margin:7px 0 2px}.metric small{color:rgba(20,24,31,.52);font-size:11px}
+  .section-head{display:flex;justify-content:space-between;align-items:end;gap:18px;margin:30px 0 12px}.section-head h2{font:400 italic 25px var(--font-display);margin:0}.section-head span{font:400 9px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(20,24,31,.5)}
+  .agents{display:grid;grid-template-columns:minmax(430px,1.25fr) minmax(280px,.75fr);gap:20px}.agent-list,.detail,.activity{background:#fff;border:1px solid var(--rule);border-radius:6px;overflow:hidden}.agent-row{width:100%;display:grid;grid-template-columns:30px 1fr 130px 64px;align-items:center;gap:12px;padding:14px 16px;border:0;border-bottom:1px solid var(--rule);background:#fff;text-align:left;cursor:pointer;color:var(--ink)}.agent-row:last-child{border-bottom:0}.agent-row:hover,.agent-row.active{background:var(--blue-whisper)}.agent-row .n,.agent-row .kind,.agent-row .state{font:400 9px var(--font-mono);letter-spacing:.06em}.agent-row .n,.agent-row .kind{color:rgba(20,24,31,.5)}.agent-row .name{font-size:13px;font-weight:600}.agent-row .state{color:#4a8c64;text-transform:uppercase}.detail{padding:20px;align-self:start;position:sticky;top:20px}.detail .kind{font:500 9px var(--font-mono);letter-spacing:.16em;text-transform:uppercase;color:var(--blue-royal)}.detail h2{font:400 italic 30px/1 var(--font-display);margin:8px 0 22px}.block{border-top:1px solid var(--rule);padding:14px 0}.block b{display:block;font:500 9px var(--font-mono);letter-spacing:.12em;text-transform:uppercase;color:rgba(20,24,31,.48);margin-bottom:6px}.block p{margin:0;font-size:12.5px;line-height:1.55}.source{font-family:var(--font-mono);font-size:10px!important;color:var(--blue-deep);overflow-wrap:anywhere}
+  .event{display:grid;grid-template-columns:90px 165px 1fr 50px;gap:15px;padding:14px 16px;border-bottom:1px solid var(--rule);font-size:12px}.event:last-child{border-bottom:0}.event time,.event .done{font:400 9px var(--font-mono);text-transform:uppercase}.event .who{font-weight:600}.event .done{color:#4a8c64}.truth{margin-top:28px;border-left:3px solid var(--blue-royal);padding:4px 0 4px 16px}.truth b{font:400 italic 22px var(--font-display)}.truth p{font-size:12.5px;color:var(--ink-2);max-width:780px;margin:4px 0 0}
+  @media(max-width:900px){.app{grid-template-columns:1fr}.sidebar{position:static;height:auto}.main{padding:24px}.agents{grid-template-columns:1fr}.detail{position:static}}@media(max-width:620px){.metrics{grid-template-columns:1fr}.page-h{display:block}.page-h p{text-align:left;margin-top:16px}.agent-row{grid-template-columns:25px 1fr 55px}.agent-row .kind{display:none}.event{grid-template-columns:70px 1fr}.event .what{grid-column:2}.event .done{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <a href="index.html" class="brand">
+      <svg viewBox="-50 -50 100 100" width="22" height="22" xmlns="http://www.w3.org/2000/svg"><g transform="rotate(-10)" stroke="#65A0DC" stroke-width="3.2" stroke-linecap="round" fill="none"><path d="M0 -5Q5 -20 0 -36"/><path d="M0 -5Q5 -20 0 -36" transform="rotate(120)"/><path d="M0 -5Q5 -20 0 -36" transform="rotate(240)"/></g></svg>
+      <span class="wordmark">AI Propulsion<span class="dot">.</span></span><span class="demo-badge-dark">Studio</span>
+    </a>
+    <div class="nav-label">Workspace</div>
+    <a class="nav-item" href="studio.html"><span>Dashboard</span></a>
+    <a class="nav-item active" href="agents.html"><span>Agents</span></a>
+    <div class="nav-label">Company</div>
+    <a class="nav-item" href="index.html"><span>Public website</span></a>
+    <div class="sidebar-foot">Agent registry<br>Shared design from Piero Second Brain<br>Updated 2026-08-04</div>
+  </aside>
+  <main class="main">
+    <div class="topline"><span class="crumbs">Studio · Operations · Agents</span><span class="runtime"><i></i>Runtime not connected</span></div>
+    <div class="page-h"><h1>Agent <em>control</em> center</h1><p>See what each configured capability is for, what it reports doing, and what has been completed—with no invented live activity.</p></div>
+    <div class="metrics"><article class="metric"><span>Configured capabilities</span><strong id="agent-count">0</strong><small>Skills available to the company</small></article><article class="metric"><span>Verified running now</span><strong>0</strong><small>No heartbeat backend connected</small></article><article class="metric"><span>Recorded actions</span><strong id="action-count">0</strong><small>Supported by the shared vault</small></article></div>
+    <div class="section-head"><h2>Configured agents</h2><span>Purpose · current report · completed work</span></div>
+    <div class="agents"><div class="agent-list" id="agent-list"></div><aside class="detail" id="detail"></aside></div>
+    <div class="section-head"><h2>Recorded activity</h2><span>Append-only history begins here</span></div>
+    <div class="activity" id="activity"></div>
+    <div class="truth"><b>What remains</b><p>True live status requires a runner to write a heartbeat, current task, evidence, blocker, and completion event to a shared backend. This page is connected to the website; it is not yet connected to a live agent runtime.</p></div>
+  </main>
+</div>
+<script src="agent-data.js"></script>
+<script>
+const d=window.AGENT_DATA;let selected=d.agents[0].id;
+document.getElementById('agent-count').textContent=d.agents.length;document.getElementById('action-count').textContent=d.activity.length;
+function render(){document.getElementById('agent-list').innerHTML=d.agents.map((a,i)=>`<button class="agent-row ${a.id===selected?'active':''}" data-id="${a.id}"><span class="n">${String(i+1).padStart(2,'0')}</span><span class="name">${a.name}</span><span class="kind">${a.kind}</span><span class="state">${a.status}</span></button>`).join('');const a=d.agents.find(x=>x.id===selected);document.getElementById('detail').innerHTML=`<span class="kind">${a.kind} · ${a.status}</span><h2>${a.name}</h2><div class="block"><b>Purpose</b><p>${a.purpose}</p></div><div class="block"><b>Doing now</b><p>${a.doing}</p></div><div class="block"><b>What it has done</b><p>${a.done}</p></div><div class="block"><b>Shared source</b><p class="source">${a.source}</p></div>`;}
+document.getElementById('agent-list').addEventListener('click',e=>{const row=e.target.closest('button');if(row){selected=row.dataset.id;render()}});render();
+document.getElementById('activity').innerHTML=d.activity.map(e=>`<article class="event"><time>${e.at}</time><span class="who">${e.agent}</span><span class="what">${e.detail}</span><span class="done">done</span></article>`).join('');
+</script>
+</body>
+</html>
